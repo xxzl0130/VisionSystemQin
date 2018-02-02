@@ -1,0 +1,1 @@
+vuFrustum.h是用于画锥套管子的h文件，需要替换掉C:\Presagis\Vega_Prime_4\include\vsg中的对应得文件，同名覆盖。

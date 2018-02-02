@@ -1,0 +1,375 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Simulation Files">
+      <UniqueIdentifier>{effed9c0-3dd9-43ae-8cd2-682232c4d162}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MsChartSourceFiles">
+      <UniqueIdentifier>{9554b32e-87b4-441f-847c-b6a9d2f7617c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CalibrateCamera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CvvImage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawDrogue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="epnp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LongLatSetting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MAPX.CPP">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MyApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecieverPlaneSetting.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultDisplay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultResport.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShowMschart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SplasScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VisionProcess.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VisionSystemQin.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VisionSystemQinDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SimVisionSystem.cpp">
+      <Filter>Simulation Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\mschart.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcaxis.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcaxisgrid.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcaxisscale.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcaxistitle.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcbackdrop.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcbrush.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vccategoryscale.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vccolor.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vccoor.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcdatagrid.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcdatapoint.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcdatapointlabel.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcdatapoints.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcfill.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcfont.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcfootnote.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcframe.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcintersection.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclabel.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclabels.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclcoor.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclegend.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclight.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclightsource.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclightsources.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vclocation.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcmarker.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcpen.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcplot.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcplotbase.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcrect.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcseries.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcseriescollection.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcseriesmarker.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcseriesposition.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcshadow.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcstatline.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vctextlayout.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vctick.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vctitle.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcvaluescale.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcview3d.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcwall.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="MschartSourcefile\vcweighting.cpp">
+      <Filter>MsChartSourceFiles</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CalibrateCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CvvImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawDrogue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="epnp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LongLatSetting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MAPX.H">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MyApp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecieverPlaneSetting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultDisplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultResport.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShowMschart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SplasScreen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VisionProcess.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VisionSystemQin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VisionSystemQinDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimStructDefine.h">
+      <Filter>Simulation Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SimVisionSystem.h">
+      <Filter>Simulation Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Bitmap\AirReFuelling.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\VisionSystemQin\VisionSystemQin\Bitmap\AirRefuelling.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\BackDistance.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\Background.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\DownDistanse.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\forwoardDistance.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\GPS (2).bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\VisionSystemQin_DynamicDetectNoMark\VisionSystemQin\GPS.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\LeftDistance.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\LeftDistanse.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\Loading.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="plane.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\plane.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\plane.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\planeA.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RightDistanse.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RotateXNi.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RotateXshun.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RotateYNi.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RotateYshun.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RotateZNi.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\RotateZshun.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Bitmap\UpDistanse.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\VisionSystemQin.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VisionSystemQin.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\VisionSystemQin.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+</Project>

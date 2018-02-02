@@ -1,0 +1,200 @@
+<MetaFlightRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn://www.multigen-paradigm.com/MetaFlight  metaflight.xsd" xmlns="urn://www.multigen-paradigm.com/MetaFlight">
+	<MetaFlightVersionMajor>1</MetaFlightVersionMajor>
+	<MetaFlightVersionMinor>3</MetaFlightVersionMinor>
+	<Database name="ds18_terrain">
+		<SchemaCopyright>MetaFlight Schema V1.3 - Copyright 2006-2007 MultiGen Paradigm, Inc.</SchemaCopyright>
+		<VersionMajor>0</VersionMajor>
+		<VersionMinor>1</VersionMinor>
+		<DatasetNameMapping>USE_DATASET_NAME</DatasetNameMapping>
+		<Ellipsoid name="WGS84">
+			<SemiMajorRadius>6378137</SemiMajorRadius>
+			<SemiMinorRadius>6356752.31424518</SemiMinorRadius>
+		</Ellipsoid>
+		<ProjectedCoordSys name="terrain_data_cs20">
+			<UnitsCategory>LINEAR_DISTANCE</UnitsCategory>
+			<HorizontalUnitType>METERS</HorizontalUnitType>
+			<VerticalUnitType>METERS</VerticalUnitType>
+			<HorizontalDatumUsed refTo="WGS84"/>
+			<FlatEarth name="terrain_data_cs20_FlatEarth">
+				<Description>MPI Flat Earth</Description>
+				<Source>Multigen Creator</Source>
+				<OriginLatitude>40.0527458190918</OriginLatitude>
+				<OriginLongitude>116.334129333496</OriginLongitude>
+			</FlatEarth>
+		</ProjectedCoordSys>
+		<NonProjectedCoordSys name="terrain_grid_cs19">
+			<UnitsCategory>ANGULAR_DISTANCE</UnitsCategory>
+			<HorizontalUnitType>DEGREES</HorizontalUnitType>
+			<VerticalUnitType>METERS</VerticalUnitType>
+			<HorizontalDatumUsed refTo="WGS84"/>
+			<GeoType>GEODETIC</GeoType>
+		</NonProjectedCoordSys>
+		<GridStructure name="gs13">
+			<NumLevels>7</NumLevels>
+			<StartingLevel>0</StartingLevel>
+			<GridLevel name="gs13_LOD0">
+				<LevelName>LOD0</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>255</r>
+					<g>0</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="gs13_LOD1">
+				<LevelName>LOD1</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>255</r>
+					<g>0</g>
+					<b>255</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="gs13_LOD2">
+				<LevelName>LOD2</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>255</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="gs13_LOD3">
+				<LevelName>LOD3</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>255</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="gs13_LOD4">
+				<LevelName>LOD4</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>0</g>
+					<b>255</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="gs13_LOD5">
+				<LevelName>LOD5</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="gs13_LOD6">
+				<LevelName>LOD6</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>255</r>
+					<g>0</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+		</GridStructure>
+		<Coverage name="terrain_grid_cv_2">
+			<CoordSysUsed refTo="terrain_grid_cs19"/>
+			<Origin>
+				<x>116.334129333496</x>
+				<y>40.0527458190918</y>
+			</Origin>
+			<Extent>
+				<x>.549446105957031</x>
+				<y>.469444274902344</y>
+			</Extent>
+		</Coverage>
+		<SwitchDistanceTable name="st2">
+			<SwitchDistance name="sr7">
+				<Value>1000000</Value>
+			</SwitchDistance>
+			<SwitchDistance name="sr8">
+				<Value>135000</Value>
+			</SwitchDistance>
+			<SwitchDistance name="sr9">
+				<Value>67000</Value>
+			</SwitchDistance>
+			<SwitchDistance name="sr10">
+				<Value>33000</Value>
+			</SwitchDistance>
+			<SwitchDistance name="sr11">
+				<Value>16000</Value>
+			</SwitchDistance>
+			<SwitchDistance name="sr12">
+				<Value>7500</Value>
+			</SwitchDistance>
+			<SwitchDistance name="terrain_G">
+				<Value>3200</Value>
+			</SwitchDistance>
+			<SwitchDistance name="terrain_H">
+				<Value>0</Value>
+			</SwitchDistance>
+		</SwitchDistanceTable>
+		<GeometryGridDataset name="ds18_terrain">
+			<DatasetName>ds18_terrain</DatasetName>
+			<DatasetTitle>terrain_hier</DatasetTitle>
+			<Description>Terrain Hierarchy created by structure builder</Description>
+			<FileFormat>flt</FileFormat>
+			<CoordSysUsed refTo="terrain_data_cs20"/>
+			<GridStack name="ds18_terrain_GridStack">
+				<GridStructureUsed refTo="gs13"/>
+				<CoverageUsed refTo="terrain_grid_cv_2"/>
+				<FileNamePattern>$(DSNAME)-$(DSTITLE)\v%01d$(LEVEL)\r%03d$(ROW)\$(DSNAME)-v%01d$(LEVEL)-c%03d$(COL)-r%03d$(ROW).flt</FileNamePattern>
+			</GridStack>
+			<HierarchyType>SUBSTITUTIVE</HierarchyType>
+			<SwitchDistanceTableUsed refTo="st2"/>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_0">
+				<TileType>FILE_LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="sr8"/>
+				<SwitchIn_DistanceUsed refTo="sr7"/>
+			</GeometryGridLevel>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_1">
+				<TileType>FILE_LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED_DEPENDENT</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="sr9"/>
+				<SwitchIn_DistanceUsed refTo="sr8"/>
+			</GeometryGridLevel>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_2">
+				<TileType>FILE_LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED_DEPENDENT</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="sr10"/>
+				<SwitchIn_DistanceUsed refTo="sr9"/>
+			</GeometryGridLevel>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_3">
+				<TileType>FILE_LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED_DEPENDENT</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="sr11"/>
+				<SwitchIn_DistanceUsed refTo="sr10"/>
+			</GeometryGridLevel>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_4">
+				<TileType>FILE_LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED_DEPENDENT</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="sr12"/>
+				<SwitchIn_DistanceUsed refTo="sr11"/>
+			</GeometryGridLevel>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_5">
+				<TileType>LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED_DEPENDENT</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="terrain_G"/>
+				<SwitchIn_DistanceUsed refTo="sr12"/>
+			</GeometryGridLevel>
+			<GeometryGridLevel name="ds18_terrain_GeomLevel_6">
+				<TileType>LOD_GEOM</TileType>
+				<LocalizedType>LOCALIZED_DEPENDENT</LocalizedType>
+				<SwitchOut_DistanceUsed refTo="terrain_H"/>
+				<SwitchIn_DistanceUsed refTo="terrain_G"/>
+			</GeometryGridLevel>
+		</GeometryGridDataset>
+	</Database>
+</MetaFlightRoot>

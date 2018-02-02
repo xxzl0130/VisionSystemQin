@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{0459F56B-72A2-4F80-A232-063E5F552183}</ProjectGuid>
+    <RootNamespace>VisionSystemQin</RootNamespace>
+    <Keyword>MFCProj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v90</PlatformToolset>
+    <UseOfMfc>Dynamic</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>15.0.27130.2020</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm350 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)VisionSystemQin\MschartHeadFile;$(PRESAGIS_VEGA_PRIME_4)\include\VegaPrime;$(PRESAGIS_VEGA_PRIME_4)\include\vsg;$(OpenCV2_INCLUDE);C:\Program Files (x86)\Codejock Software\MFC\Xtreme ToolkitPro v15.0.1\Source;$(OpenCV2_INCLUDE)\opencv2;$(OpenCV2_INCLUDE)\opencv\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0804</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencv_calib3d249d.lib;opencv_contrib249d.lib;opencv_core249d.lib;opencv_features2d249d.lib;opencv_flann249d.lib;opencv_gpu249d.lib;opencv_highgui249d.lib;opencv_imgproc249d.lib;opencv_legacy249d.lib;opencv_ml249d.lib;opencv_nonfree249d.lib;opencv_objdetect249d.lib;opencv_ocl249d.lib;opencv_photo249d.lib;opencv_stitching249d.lib;opencv_superres249d.lib;opencv_ts249d.lib;opencv_video249d.lib;opencv_videostab249d.lib;ToolkitPro1501vc90D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PRESAGIS_VEGA_PRIME_LIB_4);$(OpenCV2_LIB);C:\Program Files (x86)\Codejock Software\MFC\Xtreme ToolkitPro v15.0.1\Lib\vc90;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>msvcrt;msvcpt;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+    </Midl>
+    <ClCompile>
+      <AdditionalOptions>-Zm200 %(AdditionalOptions)</AdditionalOptions>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(PRESAGIS_VEGA_PRIME_4)\include\vegaprime;$(PRESAGIS_VEGA_PRIME_4)\include\vsg;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0804</Culture>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>opencv_calib3d231.lib;opencv_contrib231.lib;opencv_core231.lib;opencv_features2d231.lib;opencv_flann231.lib;opencv_gpu231.lib;opencv_highgui231.lib;opencv_imgproc231.lib;opencv_legacy231.lib;opencv_ml231.lib;opencv_objdetect231.lib;opencv_ts231.lib;opencv_video231.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(PRESAGIS_VEGA_PRIME_LIB_4);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="CalibrateCamera.cpp" />
+    <ClCompile Include="CvvImage.cpp" />
+    <ClCompile Include="DrawDrogue.cpp" />
+    <ClCompile Include="epnp.cpp" />
+    <ClCompile Include="ImageProcess.cpp" />
+    <ClCompile Include="LongLatSetting.cpp" />
+    <ClCompile Include="MAPX.CPP" />
+    <ClCompile Include="MschartSourcefile\mschart.cpp" />
+    <ClCompile Include="MschartSourcefile\vcaxis.cpp" />
+    <ClCompile Include="MschartSourcefile\vcaxisgrid.cpp" />
+    <ClCompile Include="MschartSourcefile\vcaxisscale.cpp" />
+    <ClCompile Include="MschartSourcefile\vcaxistitle.cpp" />
+    <ClCompile Include="MschartSourcefile\vcbackdrop.cpp" />
+    <ClCompile Include="MschartSourcefile\vcbrush.cpp" />
+    <ClCompile Include="MschartSourcefile\vccategoryscale.cpp" />
+    <ClCompile Include="MschartSourcefile\vccolor.cpp" />
+    <ClCompile Include="MschartSourcefile\vccoor.cpp" />
+    <ClCompile Include="MschartSourcefile\vcdatagrid.cpp" />
+    <ClCompile Include="MschartSourcefile\vcdatapoint.cpp" />
+    <ClCompile Include="MschartSourcefile\vcdatapointlabel.cpp" />
+    <ClCompile Include="MschartSourcefile\vcdatapoints.cpp" />
+    <ClCompile Include="MschartSourcefile\vcfill.cpp" />
+    <ClCompile Include="MschartSourcefile\vcfont.cpp" />
+    <ClCompile Include="MschartSourcefile\vcfootnote.cpp" />
+    <ClCompile Include="MschartSourcefile\vcframe.cpp" />
+    <ClCompile Include="MschartSourcefile\vcintersection.cpp" />
+    <ClCompile Include="MschartSourcefile\vclabel.cpp" />
+    <ClCompile Include="MschartSourcefile\vclabels.cpp" />
+    <ClCompile Include="MschartSourcefile\vclcoor.cpp" />
+    <ClCompile Include="MschartSourcefile\vclegend.cpp" />
+    <ClCompile Include="MschartSourcefile\vclight.cpp" />
+    <ClCompile Include="MschartSourcefile\vclightsource.cpp" />
+    <ClCompile Include="MschartSourcefile\vclightsources.cpp" />
+    <ClCompile Include="MschartSourcefile\vclocation.cpp" />
+    <ClCompile Include="MschartSourcefile\vcmarker.cpp" />
+    <ClCompile Include="MschartSourcefile\vcpen.cpp" />
+    <ClCompile Include="MschartSourcefile\vcplot.cpp" />
+    <ClCompile Include="MschartSourcefile\vcplotbase.cpp" />
+    <ClCompile Include="MschartSourcefile\vcrect.cpp" />
+    <ClCompile Include="MschartSourcefile\vcseries.cpp" />
+    <ClCompile Include="MschartSourcefile\vcseriescollection.cpp" />
+    <ClCompile Include="MschartSourcefile\vcseriesmarker.cpp" />
+    <ClCompile Include="MschartSourcefile\vcseriesposition.cpp" />
+    <ClCompile Include="MschartSourcefile\vcshadow.cpp" />
+    <ClCompile Include="MschartSourcefile\vcstatline.cpp" />
+    <ClCompile Include="MschartSourcefile\vctextlayout.cpp" />
+    <ClCompile Include="MschartSourcefile\vctick.cpp" />
+    <ClCompile Include="MschartSourcefile\vctitle.cpp" />
+    <ClCompile Include="MschartSourcefile\vcvaluescale.cpp" />
+    <ClCompile Include="MschartSourcefile\vcview3d.cpp" />
+    <ClCompile Include="MschartSourcefile\vcwall.cpp" />
+    <ClCompile Include="MschartSourcefile\vcweighting.cpp" />
+    <ClCompile Include="MyApp.cpp" />
+    <ClCompile Include="RecieverPlaneSetting.cpp" />
+    <ClCompile Include="ResultDisplay.cpp" />
+    <ClCompile Include="ResultResport.cpp" />
+    <ClCompile Include="ShowMap.cpp" />
+    <ClCompile Include="ShowMschart.cpp" />
+    <ClCompile Include="SimVisionSystem.cpp" />
+    <ClCompile Include="SplasScreen.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="VisionProcess.cpp" />
+    <ClCompile Include="VisionSystemQin.cpp" />
+    <ClCompile Include="VisionSystemQinDlg.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CalibrateCamera.h" />
+    <ClInclude Include="CvvImage.h" />
+    <ClInclude Include="DrawDrogue.h" />
+    <ClInclude Include="epnp.h" />
+    <ClInclude Include="ImageProcess.h" />
+    <ClInclude Include="LongLatSetting.h" />
+    <ClInclude Include="MAPX.H" />
+    <ClInclude Include="MyApp.h" />
+    <ClInclude Include="RecieverPlaneSetting.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="ResultDisplay.h" />
+    <ClInclude Include="ResultResport.h" />
+    <ClInclude Include="ShowMap.h" />
+    <ClInclude Include="ShowMschart.h" />
+    <ClInclude Include="SimStructDefine.h" />
+    <ClInclude Include="SimVisionSystem.h" />
+    <ClInclude Include="SplasScreen.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="VisionProcess.h" />
+    <ClInclude Include="VisionSystemQin.h" />
+    <ClInclude Include="VisionSystemQinDlg.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\GPS (2).bmp" />
+    <Image Include="..\..\VisionSystemQin\VisionSystemQin\Bitmap\AirRefuelling.bmp" />
+    <Image Include="..\..\VisionSystemQin_DynamicDetectNoMark\VisionSystemQin\GPS.bmp" />
+    <Image Include="Bitmap\AirReFuelling.bmp" />
+    <Image Include="Bitmap\BackDistance.bmp" />
+    <Image Include="Bitmap\Background.bmp" />
+    <Image Include="Bitmap\bitmap1.bmp" />
+    <Image Include="Bitmap\DownDistanse.bmp" />
+    <Image Include="Bitmap\forwoardDistance.bmp" />
+    <Image Include="Bitmap\LeftDistance.bmp" />
+    <Image Include="Bitmap\LeftDistanse.bmp" />
+    <Image Include="Bitmap\Loading.bmp" />
+    <Image Include="Bitmap\RightDistanse.bmp" />
+    <Image Include="Bitmap\RotateXNi.bmp" />
+    <Image Include="Bitmap\RotateXshun.bmp" />
+    <Image Include="Bitmap\RotateYNi.bmp" />
+    <Image Include="Bitmap\RotateYshun.bmp" />
+    <Image Include="Bitmap\RotateZNi.bmp" />
+    <Image Include="Bitmap\RotateZshun.bmp" />
+    <Image Include="Bitmap\UpDistanse.bmp" />
+    <Image Include="plane.ico" />
+    <Image Include="res\plane.ico" />
+    <Image Include="res\plane.png" />
+    <Image Include="res\planeA.ico" />
+    <Image Include="res\VisionSystemQin.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VisionSystemQin.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\VisionSystemQin.rc2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties _x007B_B06B11B1-EBEC-4972-B786-369EB41C18B2_x007D_="CRealtimemap" RESOURCE_FILE="VisionSystemQin.rc" />
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

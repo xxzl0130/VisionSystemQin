@@ -1,0 +1,257 @@
+<MetaFlightRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn://www.multigen-paradigm.com/MetaFlight  metaflight.xsd" xmlns="urn://www.multigen-paradigm.com/MetaFlight">
+	<MetaFlightVersionMajor>1</MetaFlightVersionMajor>
+	<MetaFlightVersionMinor>3</MetaFlightVersionMinor>
+	<Database name="ds8_image">
+		<SchemaCopyright>MetaFlight Schema V1.3 - Copyright 2006-2007 MultiGen Paradigm, Inc.</SchemaCopyright>
+		<VersionMajor>0</VersionMajor>
+		<VersionMinor>1</VersionMinor>
+		<DatasetNameMapping>USE_DATASET_NAME</DatasetNameMapping>
+		<Ellipsoid name="WGS84">
+			<SemiMajorRadius>6378137</SemiMajorRadius>
+			<SemiMinorRadius>6356752.31424518</SemiMinorRadius>
+		</Ellipsoid>
+		<NonProjectedCoordSys name="cs13">
+			<UnitsCategory>ANGULAR_DISTANCE</UnitsCategory>
+			<HorizontalUnitType>DEGREES</HorizontalUnitType>
+			<VerticalUnitType>METERS</VerticalUnitType>
+			<HorizontalDatumUsed refTo="WGS84"/>
+			<GeoType>GEODETIC</GeoType>
+		</NonProjectedCoordSys>
+		<GridStructure name="vt_gridstructure">
+			<NumLevels>20</NumLevels>
+			<StartingLevel>0</StartingLevel>
+			<GridLevel name="vt_gridstructure_Grid_0">
+				<LevelName>Grid_0</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_1">
+				<LevelName>Grid_1</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_2">
+				<LevelName>Grid_2</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_3">
+				<LevelName>Grid_3</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_4">
+				<LevelName>Grid_4</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_5">
+				<LevelName>Grid_5</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_6">
+				<LevelName>Grid_6</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_7">
+				<LevelName>Grid_7</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_8">
+				<LevelName>Grid_8</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_9">
+				<LevelName>Grid_9</LevelName>
+				<NumColDivisions>1</NumColDivisions>
+				<NumRowDivisions>1</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_10">
+				<LevelName>Grid_10</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_11">
+				<LevelName>Grid_11</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_12">
+				<LevelName>Grid_12</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_13">
+				<LevelName>Grid_13</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_14">
+				<LevelName>Grid_14</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_15">
+				<LevelName>Grid_15</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_16">
+				<LevelName>Grid_16</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_17">
+				<LevelName>Grid_17</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_18">
+				<LevelName>Grid_18</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+			<GridLevel name="vt_gridstructure_Grid_19">
+				<LevelName>Grid_19</LevelName>
+				<NumColDivisions>2</NumColDivisions>
+				<NumRowDivisions>2</NumRowDivisions>
+				<RGBColor>
+					<r>0</r>
+					<g>255</g>
+					<b>0</b>
+				</RGBColor>
+			</GridLevel>
+		</GridStructure>
+		<Coverage name="vt_coverage">
+			<CoordSysUsed refTo="cs13"/>
+			<Origin>
+				<x>116.257324218518</x>
+				<y>40.0193259315565</y>
+			</Origin>
+			<Extent>
+				<x>.703125000260769</x>
+				<y>.536346724256873</y>
+			</Extent>
+		</Coverage>
+		<VirtualTextureDataset name="ds8_image">
+			<DatasetName>ds8_image</DatasetName>
+			<DatasetTitle>visual_vt</DatasetTitle>
+			<Description>Final visual virtual texture in .dds format</Description>
+			<FileFormat>dds</FileFormat>
+			<CoordSysUsed refTo="cs13"/>
+			<GridStack name="ds8_image_GridStack">
+				<GridStructureUsed refTo="vt_gridstructure"/>
+				<CoverageUsed refTo="vt_coverage"/>
+				<FileNamePattern>$(DSNAME)-$(DSTITLE)\level-%08d$(NUMTEXELSX)\c%05d$(COL)\$(DSNAME)-l%08d$(NUMTEXELSX)-c%05d$(COL)-r%05d$(ROW).dds</FileNamePattern>
+			</GridStack>
+			<ImageAttributes>
+				<NumComponents>3</NumComponents>
+				<BitsPerComponent>8</BitsPerComponent>
+				<ImageFormat>dxt1</ImageFormat>
+			</ImageAttributes>
+			<NumVirtualTexels>524288</NumVirtualTexels>
+			<NumTileTexels>512</NumTileTexels>
+			<SubstitutionTexture>vt_sub.rgb</SubstitutionTexture>
+			<PixelOrigin>LL_OPENGL_PIXELORIGIN_TYPE</PixelOrigin>
+		</VirtualTextureDataset>
+	</Database>
+</MetaFlightRoot>
