@@ -1020,7 +1020,7 @@ DWORD WINAPI CVisionSystemQinDlg::VisionDisplay(LPVOID lpParameter)
 	int nPos = GetCurrentDirectory( MAX_PATH, pFileName); 
 	CString csFullPath(pFileName);  
 	pSearchPath_mySearchPath->append( csFullPath+"/VisionModel/c130grey" );
-	pSearchPath_mySearchPath->append( csFullPath+"/VisionModel/tree/f16" );
+	pSearchPath_mySearchPath->append( csFullPath+"/VisionModel/f16" );
 	pSearchPath_mySearchPath->append( csFullPath+"/VisionModel" );
 
 	Drawdrogue->initialize();

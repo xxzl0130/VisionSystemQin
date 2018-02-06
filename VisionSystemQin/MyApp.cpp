@@ -63,7 +63,7 @@ int CMyApp::configure() //系统配置
 {
 	// 配置Vega Prime系统
 	vpApp::configure();
-
+	freopen("err.log", "w", stderr);
 	CalibrationpMainChannel = vpChannel::find("CalibrationChannel");//主通道	
 	assert(CalibrationpMainChannel);
 
@@ -114,7 +114,7 @@ int CMyApp::configure() //系统配置
 	HANDLE ImageProcessHandle;
 	ImageProcessHandle = CreateThread(NULL,0,ImageProcess,(LPVOID)this,0,NULL);
 	CloseHandle(ImageProcessHandle);
-
+	
 	return vsgu::SUCCESS;
 }
 int CMyApp::endFrame()
@@ -673,12 +673,12 @@ DWORD WINAPI CMyApp::ImageProcess(LPVOID lpParameter)
 			// 深度为8，通道数为3,24位图  
 			//将图像转化为opencv的格式
 			IplImage* DrogueImage = cvCreateImage(cvSize(sx,sy), IPL_DEPTH_8U, 3);  
-
 			memcpy(DrogueImage->imageData, temp->buffer, sx * sy * 3);
 			free(temp->buffer);  
 			// 由于OpenGL与OpenCv读取buffer的方向在y轴上相反，所以作x轴翻转，第二个参数为 
 			// NULL表示作原地翻转. 
 			cvFlip(DrogueImage, NULL, 0); 
+			
 			CImageProcess ImageProcess;
 			if(DrogueImage->imageData)
 				ImageProcess.DroguePictureDetect(DrogueImage);//处理图像

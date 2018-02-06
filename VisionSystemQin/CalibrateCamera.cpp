@@ -426,7 +426,7 @@ void CCalibrateCamera::CamaeraCalibration(CvSize ImageSize, CvSize ChessBoardSiz
 		{
 			CString str;
 			str.Format("%02d",captured_frames);
-			filename = "D:/Users/hjya/Desktop/f16/VisionSystemQin/VisionSystemQin/Frame/frame"+str+".bmp";
+			filename = csFullPath + "Frame/frame"+str+".bmp";
 
 		}else
 		{
@@ -908,7 +908,9 @@ void CCalibrateCamera::OnPaint()
 DWORD WINAPI CCalibrateCamera::CalibrationIng(LPVOID lpParameter)
 {
 	CCalibrateCamera* temp = (CCalibrateCamera*)lpParameter;
-	temp->CamaeraCalibration(cvSize(Basic_Image_Width,Basic_Image_Height), cvSize(temp->m_XCornorCount,temp->m_YCornorCount), temp->m_SquareSize,PictureCount,temp->m_ChessBoardTimes);
+	temp->CamaeraCalibration(cvSize(Basic_Image_Width,Basic_Image_Height),
+	                         cvSize(temp->m_XCornorCount, temp->m_YCornorCount), temp->m_SquareSize, PictureCount,
+	                         temp->m_ChessBoardTimes);
 	//CloseHandle(CalibrationHandle);
 	return 0;
 }

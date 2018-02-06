@@ -13,6 +13,7 @@
 #include <time.h>
 #include "ShowMschart.h"
 #include "epnp.h"
+#include "../../../../../../../ProgramData/OpenCV2/include/opencv2/legacy/compat.hpp"
 
 #define GrayScale 256  
 #define hudu2du 57.29578
@@ -187,21 +188,27 @@ BOOL CImageProcess::OnInitDialog()
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
-
-
 //图像处理函数，核心函数，完成图像的检测、跟踪、定位以及各种干扰的添加。
 void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 {
 	clock_t start = clock();
 	IplImage* FollowImage;
 
+	char videoname[64];
+	static uint32_t cnt = 0;
+	int p[3];
+	p[0] = CV_IMWRITE_JPEG_QUALITY;
+	p[1] = 100;
+	p[2] = 0;
+	sprintf(videoname, "./saveimage/%d.jpg", cnt++);
+	cvSaveImage(videoname, CurrentVisionImage, p);
 	int IntFollowAreaLeft;
 	int IntFollowAreaRight;
 	int IntFollowAreaUp;
 	int IntFollowAreaDown;
 	if(StartFollowFlag && FirstFrameOverFlag == 1)
 	{
-
+		// 上一次检测推算出的检测区域
 		IntFollowAreaLeft = (int)FollowAreaLeft;
 		IntFollowAreaRight = (int)FollowAreaRight;
 		IntFollowAreaUp = (int)FollowAreaUp;
@@ -216,7 +223,6 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		//cvResetImageROI(CurrentVisionImage);	
 		//cvRectangle(CurrentVisionImage,cvPoint(IntFollowAreaLeft,IntFollowAreaUp),
 		//	cvPoint(IntFollowAreaRight,IntFollowAreaDown),CV_RGB(0,0,0),2,8);
-
 	}
 	else
 	{
@@ -225,9 +231,10 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	}
  
 	DetectTotalTimes++;
-	Mat new_image(FollowImage);
+	Mat new_image = cvarrToMat(FollowImage);
 
-	/// 执行运算 new_image(i,j) = alpha*image(i,j) + beta
+	// 执行运算 new_image(i,j) = alpha*image(i,j) + beta
+	// 亮度 对比度
 	if(m_Slider_Contrast_Value != 0 || m_Slider_Bright_Value != 0)
 	{
 		new_image.convertTo(new_image, -1, 1 + m_Slider_Contrast_Value / 100 + 0.01, m_Slider_Bright_Value);
@@ -245,6 +252,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	}
 	
 	IplImage M = new_image;
+	//噪声
 	if(m_Slider_Noise_Value != 0)
 	{
 		if (Choose_Noise_Flag == 1)
@@ -293,12 +301,13 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		cvSub(h_R,h_B,h_R);
 
 	}
-	
+	// 二值化
 	cvThreshold(h_R,h_R,20,255,CV_THRESH_BINARY);
 	if(FilteringMethod == CV_BILATERAL )
 		cvSmooth(h_R, h_R, FilteringMethod, 3, 0, 21, 5);//高斯滤波平滑图像
 	else
 		cvSmooth(h_R, h_R, FilteringMethod, 5, 5, 0, 0);
+	// 膨胀、腐蚀
 	if(ErodeDilateOrderFlag == 0)
 	{
 		cvErode(h_R, h_R, NULL, Edit_Erode);
@@ -354,7 +363,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	CvMat *region; 
 	double X[100]={0},Y[100]={0},M00,Xmin=10000,Ymin=10000,Xmax=0,Ymax=0;
 	int contour_size = 0;
-	cv::Mat img(img_temp,0); 
+	cv::Mat img = cvarrToMat(img_temp);
 	
 	for(int i=0; first_contour!= 0; first_contour = first_contour->h_next,i++) 
 	{ 
@@ -1070,9 +1079,6 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		cvReleaseMat(&Dst);
 
 	}
-
-
-
 	if(DrogueLocateSolveMethodFlag == 4)
 	{
 
@@ -1371,6 +1377,8 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 			cvDestroyWindow("锥套定位");
 	hWnd->SendMessage(WM_MY_MESSAGE,0,0);
 
+	fprintf(stderr, "%.4f,%.4f,%.4f,%.4f,%.4f\n", DrogueLocateAccurateX, DrogueLocateAccurateY, DrogueLocateAccurateZ, ImageDetectHeading[CurrentFrame-1], ImageDetectPitch[CurrentFrame-1]);
+	fflush(stderr);
 }
 
 
