@@ -2,6 +2,8 @@
 #include <string>
 #include <windows.h>
 #include <algorithm>
+#include <vector>
+#include <random>
 #include "opencv2/opencv.hpp"
 #include "AddNoise.hpp"
 #define BOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE
@@ -29,6 +31,8 @@ enum {GaussNoise, UniformNoise, ImpulseNoise}noiseMethod;
 void initWindows();
 void changeNoiseMethod(int state,void *);
 void imagePreProcess(MsgLink<DispMsg>* ld);
+void imageProcess(Mat& img);
+vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items);
 
 int main()
 {
@@ -40,18 +44,15 @@ int main()
 	cout << fpsCtrl << endl;
 	while (true)
 	{
-		for (auto i = 0; i < 10; ++i)
+		DispMsg* md = linkd.prepareMsg();
+		cap >> md->image;
+		// do_some_processing(md->image);
+		linkd.send();
+		if (linkd.isClosed())
 		{
-			DispMsg* md = linkd.prepareMsg();
-			cap >> md->image;
-			// do_some_processing(md->image);
-			linkd.send();
-			if (linkd.isClosed())
-			{
-				return 0;
-			}
-			Sleep(fpsCtrl);
+			break;
 		}
+		Sleep(fpsCtrl);
 	}
 	return 0;
 }
@@ -59,7 +60,7 @@ int main()
 void initWindows()
 {
 	namedWindow(SourceWindowName,WINDOW_AUTOSIZE);
-	createTrackbar("噪声比例", SourceWindowName,&noiseValue,100,nullptr);
+	createTrackbar("噪声比例", SourceWindowName, &noiseValue, 100, nullptr);
 	createTrackbar("噪声种类", SourceWindowName, &noiseMethodValue,2, changeNoiseMethod,nullptr);
 	createTrackbar("亮度调节", SourceWindowName, &brightnessValue, 200, nullptr);
 	setTrackbarPos("亮度调节", SourceWindowName, 100);
@@ -95,7 +96,7 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	while (true)
 	{
 		md = ld->receive();
-		if (md != NULL)
+		if (md != nullptr)
 		{
 			md->image.copyTo(srcImg);
 			if(brightnessValue || contrastValue)
@@ -108,19 +109,157 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 				{
 				case GaussNoise:
 					addGausssNoise(srcImg, srcImg, noiseValue);
+					break;
 				case UniformNoise:
 					addUniformNoise(srcImg, srcImg, noiseValue);
+					break;
 				case ImpulseNoise:
 					addImpulseNoise(srcImg, srcImg, noiseValue / 100.0);
+					break;
 				}
 			}
 			imshow(SourceWindowName, srcImg);
-			waitKey(1);
+			double s = double(clock()) / CLOCKS_PER_SEC;
+			imageProcess(srcImg);
+			double t = double(clock()) / CLOCKS_PER_SEC;
+			cout << (t - s) << endl;
 		}
-		if (waitKey(3) > 0)
+		if (waitKey(1) > 0)
 		{
 			break;
 		}
 	}
 	ld->close();
+}
+
+void imageProcess(Mat& img)
+{
+	vector<Mat> channels;
+	Mat dst;
+
+	split(img, channels);
+	channels.at(2).copyTo(dst);
+	// R-G-B
+	dst -= channels.at(0) + channels.at(1);
+	//imshow("R-G-B", dst);
+	GaussianBlur(dst, dst, Size(5, 5), 1);
+	//imshow("smooth", dst);
+	threshold(dst, dst, 0, 255, THRESH_OTSU);
+	//imshow("binary", dst);
+
+	// 膨胀 腐蚀
+	const auto element = getStructuringElement(MORPH_ELLIPSE,Size(5,5));
+	dilate(dst, dst, element);
+	erode(dst, dst, element);
+	imshow("Dilation", dst);
+
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(dst, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+	//cout << contourArea(it) << endl;
+	if(contours.size() > 12)
+	{
+		contours = twoMeans(contours)[1];
+	}
+	Mat tmp;
+	dst.convertTo(tmp, CV_8UC3);
+	cvtColor(tmp, tmp, CV_GRAY2BGR);
+	drawContours(tmp, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
+	imshow("contours", tmp);
+}
+
+vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
+{
+	const static uint32_t maxCnt = 1000;
+	uint32_t cnt = 0;
+	const static double eps = 1e-5;
+	const static int K = 2;
+	// 两个质心
+	double center[K];
+	auto n = items.size();
+	vector<bool> in(n, false);
+	uniform_int_distribution<int> rand(0, n - 1);
+	default_random_engine engine;
+	vector<pair<vector<Point>, double>> data;
+
+	// 预处理面积 and 初始分类
+	double minArea = (numeric_limits<double>::max)();
+	int minIndex = 0;
+	double maxArea = (numeric_limits<double>::min)();
+	int maxIndex = 0;
+	for(auto i = 0;i < items.size();++i)
+	{
+		double area = contourArea(items[i]);
+		data.emplace_back(make_pair(items[i], area));
+		if(area < minArea && !in[i])
+		{
+			minArea = area;
+			in[minIndex] = false;
+			in[minIndex = i] = true;
+			center[0] = area;
+		}
+		if (area > maxArea && !in[i])
+		{
+			maxArea = area;
+			in[maxIndex] = false;
+			in[maxIndex = i] = true;
+			center[1] = area;
+		}
+	}
+	//cout << "min:" << center[0] << ",max:" << center[1] << endl;
+	bool centerChanged = true;
+	while(true)
+	{
+		centerChanged = false;
+		vector<vector<vector<Point>>> tempRes(K);
+		vector<vector<double>> tempResArea(K);
+		for(auto& it:data)
+		{
+			double minDist = (numeric_limits<double>::max)();
+			uint32_t index = 0;
+			for(int i = 0;i < K;++i)
+			{
+				auto t = abs(it.second - center[i]);
+				if(t < minDist)
+				{
+					minDist = t;
+					index = i;
+				}
+			}
+			tempRes[index].push_back(it.first);
+			tempResArea[index].push_back(it.second);
+		}
+
+		for(int i = 0;i < K;++i)
+		{
+			double t = 0;
+			for (double it : tempResArea[i])
+			{
+				t += it;
+			}
+			t /= tempResArea[i].size();
+			if(abs(center[i] - t) > eps)
+			{// 质心移动距离超过阈值视为改变
+				centerChanged = true;
+			}
+			center[i] = t;
+		}
+		++cnt;
+		if ((!centerChanged) || cnt > maxCnt)
+		{
+			/*cout << "cnt:" << cnt << endl;
+			for (int i = 0; i < K; ++i)
+			{
+				for(auto it: tempResArea[i])
+				{
+					cout << it << endl;
+				}
+				cout << "----------" << endl;
+				
+			}
+			//system("pause");
+			*/
+			return tempRes;
+		}
+	}
 }

@@ -6,7 +6,7 @@
 inline void addGausssNoise(const cv::Mat &src,cv::Mat &dst, double ratio)
 {
 	cv::Mat tmp = cv::Mat(src.rows,src.cols, CV_8UC3, cv::Scalar(0, 0, 0));
-	cv::RNG rng(time(NULL));
+	cv::RNG rng(time(NULL) ^ clock());
 	rng.fill(tmp, cv::RNG::NORMAL, 0, ratio);
 	dst = src + tmp;
 }
@@ -14,7 +14,7 @@ inline void addGausssNoise(const cv::Mat &src,cv::Mat &dst, double ratio)
 inline void addUniformNoise(const cv::Mat &src, cv::Mat &dst, double ratio)
 {
 	cv::Mat tmp = cv::Mat(src.rows, src.cols, CV_8UC3, cv::Scalar(0, 0, 0));
-	cv::RNG rng(time(NULL));
+	cv::RNG rng(time(NULL) ^ clock());
 	rng.fill(tmp, cv::RNG::UNIFORM, 0, ratio);
 	dst = src + tmp;
 }
@@ -27,6 +27,7 @@ inline void addImpulseNoise(const cv::Mat &src, cv::Mat &dst, double ratio)
 	size = src.cols*src.rows;
 	src.copyTo(tmp);
 	int n = int(size * ratio);
+	srand(time(NULL) ^ clock());
 	for (int k = 0; k < n; k++)
 	{
 		i = rand() % src.cols;
