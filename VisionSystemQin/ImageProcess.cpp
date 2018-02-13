@@ -420,6 +420,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	cvClearMemStorage(memstorage); 
 	DetectSuccessTimes++;
 	FirstFrameOverFlag = 0;
+	//最小椭圆+摄像机模型
 	if(DrogueLocateSolveMethodFlag == 1)
 	{
 		if(StartFollowFlag)
@@ -504,7 +505,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 			cv::circle(img,cv::Point2d(CenterX - IntFollowAreaLeft,CenterY - IntFollowAreaUp),2,CV_RGB(255,255,255),-1,8);
 		}else
 			cv::circle(img,cv::Point2d(CenterX,CenterY),2,CV_RGB(255,255,255),-1,8);
-
+		// 椭圆拟合
 
 		double XPixelSize = Xmax-Xmin;
 		double YPixelSize =Ymax-Ymin;
@@ -644,7 +645,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		cvReleaseMat(&Dst);
 
 	}
-
+	//最小椭圆+等比例
 	if(DrogueLocateSolveMethodFlag == 2)
 	{
 		
@@ -848,6 +849,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		cvReleaseMat(&Dst);
 
 	}
+	//LHM
 	if(DrogueLocateSolveMethodFlag == 3)
 	{
 
@@ -1079,6 +1081,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		cvReleaseMat(&Dst);
 
 	}
+	//EPNP
 	if(DrogueLocateSolveMethodFlag == 4)
 	{
 

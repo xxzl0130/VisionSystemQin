@@ -2,6 +2,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <ctime>
+#include <random>
 
 inline void addGausssNoise(const cv::Mat &src,cv::Mat &dst, double ratio)
 {
@@ -27,11 +28,12 @@ inline void addImpulseNoise(const cv::Mat &src, cv::Mat &dst, double ratio)
 	size = src.cols*src.rows;
 	src.copyTo(tmp);
 	int n = int(size * ratio);
-	srand(time(NULL) ^ clock());
+	std::uniform_int_distribution<int> rand(0, n);
+	std::default_random_engine engine(time(NULL) ^ clock());
 	for (int k = 0; k < n; k++)
 	{
-		i = rand() % src.cols;
-		j = rand() % src.rows;
+		i = rand(engine) % src.cols;
+		j = rand(engine) % src.rows;
 		if (src.channels() == 1)
 			tmp.at<uchar>(j, i) = 255;
 		else if (src.channels() == 3)

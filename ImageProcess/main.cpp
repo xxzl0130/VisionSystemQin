@@ -33,6 +33,10 @@ void changeNoiseMethod(int state,void *);
 void imagePreProcess(MsgLink<DispMsg>* ld);
 void imageProcess(Mat& img);
 vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items);
+// 质心法定位
+vector<Point2f> centerLocate(const vector<vector<Point>>& contours);
+// 椭圆法定位
+vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours);
 
 int main()
 {
@@ -99,7 +103,7 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 		if (md != nullptr)
 		{
 			md->image.copyTo(srcImg);
-			if(brightnessValue || contrastValue)
+			if(brightnessValue != 100 || contrastValue != 100)
 			{// 亮度&对比度调节
 				srcImg.convertTo(srcImg, -1, double(contrastValue) / 100.0, double(brightnessValue - 100));
 			}
@@ -160,11 +164,21 @@ void imageProcess(Mat& img)
 	if(contours.size() > 12)
 	{
 		contours = twoMeans(contours)[1];
+		//cout << contours.size() << endl;
 	}
 	Mat tmp;
 	dst.convertTo(tmp, CV_8UC3);
 	cvtColor(tmp, tmp, CV_GRAY2BGR);
 	drawContours(tmp, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
+	
+	auto centers = ellipseLocate(contours);
+	// 大圆的拟合
+	auto ell = fitEllipse(centers);
+	for(auto& it:centers)
+	{
+		circle(tmp, it, 1, Scalar(0, 0, 255), 2);
+	}
+	ellipse(tmp, ell, Scalar(0, 0, 255), 2, LINE_AA);
 	imshow("contours", tmp);
 }
 
@@ -262,4 +276,28 @@ vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
 			return tempRes;
 		}
 	}
+}
+
+vector<Point2f> centerLocate(const vector<vector<Point>>& contours)
+{
+	vector<Point2f> locate;
+	Moments mo;
+	for (auto& it:contours)
+	{
+		mo = moments(it, true);
+		locate.emplace_back(mo.m10 / mo.m00, mo.m01 / mo.m00);
+	}
+	return locate;
+}
+
+vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours)
+{
+	vector<Point2f> locate;
+	RotatedRect re;
+	for (auto& it : contours)
+	{
+		re = fitEllipse(it);
+		locate.push_back(re.center);
+	}
+	return locate;
 }
