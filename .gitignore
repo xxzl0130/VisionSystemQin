@@ -6,6 +6,8 @@ cvui
 *.mp4
 *.avi
 SaveImage/
+eigen
+eigen/
 
 # User-specific files
 *.suo

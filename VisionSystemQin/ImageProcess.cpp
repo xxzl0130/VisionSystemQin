@@ -193,7 +193,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 {
 	clock_t start = clock();
 	IplImage* FollowImage;
-
+#ifdef SAVE_IMAGE
 	char videoname[64];
 	static uint32_t cnt = 0;
 	int p[3];
@@ -202,6 +202,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	p[2] = 0;
 	sprintf(videoname, "./saveimage/%d.jpg", cnt++);
 	cvSaveImage(videoname, CurrentVisionImage, p);
+#endif
 	int IntFollowAreaLeft;
 	int IntFollowAreaRight;
 	int IntFollowAreaUp;
@@ -475,7 +476,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 			RightMatrix[3]-=pow(X[k],2)*Y[k];
 			RightMatrix[4]-=pow(X[k],2);
 
-		}
+		} //式4.10
 		CvMat Leftmat = cvMat(5,5,CV_64FC1,LeftMatrix);
 		CvMat Rightmat = cvMat(5,1,CV_64FC1,RightMatrix);
 		CvMat* Dst =  cvCreateMat(5,1,CV_64FC1);
@@ -544,22 +545,22 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		if(ResultIntrinsicfx != 0)
 		{
 			double RealDistance = DrogueRalativeCameraDistanceY;
-			double ImageDetectDistance = (double)(RealTimrFocusFx*0.82);
+			double ImageDetectDistance = (double)(RealTimeFocusFx*0.82);
 			double ImageDetectDistance1 = ImageDetectDistance/XPixelSize;
 			ImageDetectDistance1 = fabs(ImageDetectDistance1) + 0.592;
 			double Error = fabs(fabs(RealDistance)-fabs(ImageDetectDistance1));
 			double NeedFocus = RealDistance*XPixelSize/0.82;
-			double NeedDrougueSize = RealDistance*XPixelSize/RealTimrFocusFx;
+			double NeedDrougueSize = RealDistance*XPixelSize/RealTimeFocusFx;
 			double PhysicSizeMatrix[3][3] = {0},ProbeMatrix[3][4] = {0},PixelMatrix[3] = {0};
 
 			PhysicSizeMatrix[0][0] = 1.0;///0.00026455;//0.0254;
 			PhysicSizeMatrix[1][1] = 1.0;//0.00026455;//0.0254;
-			PhysicSizeMatrix[0][2] = RealTimeIntrinsiccx;
-			PhysicSizeMatrix[1][2] = RealTimeIntrinsiccy;
+			PhysicSizeMatrix[0][2] = RealTimeIntrinsiccx; //cx
+			PhysicSizeMatrix[1][2] = RealTimeIntrinsiccy; //cy
 			PhysicSizeMatrix[2][2] = 1.0;
-			ProbeMatrix[0][0] = RealTimrFocusFx;//3780;
-			ProbeMatrix[1][1] = RealTimrFocusFy;//3780;
-			ProbeMatrix[2][2] = 1;
+			ProbeMatrix[0][0] = RealTimeFocusFx;//3780;
+			ProbeMatrix[1][1] = RealTimeFocusFy;//3780;
+			ProbeMatrix[2][2] = 1; // 内参
 			PixelMatrix[0] = ImageCenterX*ImageDetectDistance1;
 			PixelMatrix[1] = ImageCenterY*ImageDetectDistance1;
 			PixelMatrix[2] = ImageDetectDistance1;
@@ -773,7 +774,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 		if(ResultIntrinsicfx != 0)
 		{
 			double RealDistance = DrogueRalativeCameraDistanceY;
-			double ImageDetectDistance = (double)(RealTimrFocusFx*0.82);
+			double ImageDetectDistance = (double)(RealTimeFocusFx*0.82);
 			double ImageDetectDistanceZ = ImageDetectDistance/XPixelSize;
 			ImageDetectDistanceZ = fabs(ImageDetectDistanceZ) + 0.592;
 
@@ -1380,7 +1381,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 			cvDestroyWindow("锥套定位");
 	hWnd->SendMessage(WM_MY_MESSAGE,0,0);
 
-	fprintf(stderr, "%.4f,%.4f,%.4f,%.4f,%.4f\n", DrogueLocateAccurateX, DrogueLocateAccurateY, DrogueLocateAccurateZ, ImageDetectHeading[CurrentFrame-1], ImageDetectPitch[CurrentFrame-1]);
+	fprintf(stderr, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f\n", DrogueLocateAccurateX, DrogueLocateAccurateY, DrogueLocateAccurateZ, ImageDetectHeading[CurrentFrame-1], ImageDetectPitch[CurrentFrame-1], ImageDroguePositionX, ImageDroguePositionY, ImageDroguePositionZ);
 	fflush(stderr);
 }
 
@@ -1413,10 +1414,10 @@ void CImageProcess::OnBnClickedButton1()
 	GetDlgItem(IDC_EDIT_ImageIntrinsicfx)->SetWindowText(str);
 	str.Format("%.3f",ResultIntrinsicfy);
 	GetDlgItem(IDC_EDIT_ImageIntrinsicfy)->SetWindowText(str);
-	RealTimrFocusFx = ResultIntrinsicfx;
+	RealTimeFocusFx = ResultIntrinsicfx;
 	RealTimeIntrinsiccx = ResultIntrinsiccx;
 	RealTimeIntrinsiccy = ResultIntrinsiccy;
-	RealTimrFocusFy = ResultIntrinsicfy;
+	RealTimeFocusFy = ResultIntrinsicfy;
 
 }
 
@@ -2040,8 +2041,8 @@ CvMat* CImageProcess::SolveAtitude_LHM(CvMat Input3DPoint, CvMat Input2DPoint, C
 	int count =0;
 	CvMat *translation = cvCreateMat(3,1,CV_64FC1);
 	double IntriMatrix[3][3] ={0};
-	IntriMatrix[0][0] =RealTimrFocusFx;
-	IntriMatrix[1][1] =RealTimrFocusFx;
+	IntriMatrix[0][0] =RealTimeFocusFx;
+	IntriMatrix[1][1] =RealTimeFocusFx;
 	IntriMatrix[2][2] =1;
 	IntriMatrix[0][2] =RealTimeIntrinsiccx;
 	IntriMatrix[1][2] =RealTimeIntrinsiccy;

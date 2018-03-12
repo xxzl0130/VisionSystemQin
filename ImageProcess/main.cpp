@@ -11,6 +11,7 @@
 #include <boost/bind.hpp>
 #include "msglink.hpp"
 #include <ctime>
+#include <Eigen/Dense>
 
 using namespace std;
 using namespace cv;
@@ -19,16 +20,24 @@ using namespace cv;
 #define VIDEO_HEIGHT		480
 #define SourceWindowName "Source"
 
+#define CAM_INI_FILE_NAME	"./camera.ini"
+
 class DispMsg : public MsgData
 {
 public:
 	cv::Mat image;
 };
 
+struct
+{
+	double fx, fy, x0, y0, cx, cy, s, k1, k2, p1, p2, r1, r2, r3, t1, t2, t3;
+}camPara;
+
 int noiseValue, brightnessValue, contrastValue, noiseMethodValue;
 enum {GaussNoise, UniformNoise, ImpulseNoise}noiseMethod;
 
 void initWindows();
+void initCameraParameters();
 void changeNoiseMethod(int state,void *);
 void imagePreProcess(MsgLink<DispMsg>* ld);
 void imageProcess(Mat& img);
@@ -40,6 +49,7 @@ vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours);
 
 int main()
 {
+	initCameraParameters();
 	cv::VideoCapture cap("test.avi");
 	MsgLink<DispMsg> linkd;
 	boost::thread th(boost::bind(imagePreProcess, &linkd));
@@ -71,6 +81,45 @@ void initWindows()
 	createTrackbar("对 比 度", SourceWindowName, &contrastValue, 200, nullptr);
 	setTrackbarPos("对 比 度", SourceWindowName, 100);
 	waitKey(1);
+}
+
+void initCameraParameters()
+{
+	char paraStr[32];
+	GetPrivateProfileStringA("Cam", "fx", "1.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.fx);
+	GetPrivateProfileStringA("Cam", "fy", "1.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.fy);
+	GetPrivateProfileStringA("Cam", "x0", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.x0);
+	GetPrivateProfileStringA("Cam", "y0", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.y0);
+	GetPrivateProfileStringA("Cam", "cx", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.cx);
+	GetPrivateProfileStringA("Cam", "cy", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.cy);
+	GetPrivateProfileStringA("Cam", "s", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.s);
+	GetPrivateProfileStringA("Cam", "k1", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.k1);
+	GetPrivateProfileStringA("Cam", "k2", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.k2);
+	GetPrivateProfileStringA("Cam", "p1", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.p1);
+	GetPrivateProfileStringA("Cam", "p2", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.p2);
+	GetPrivateProfileStringA("Cam", "r1", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.r1);
+	GetPrivateProfileStringA("Cam", "r2", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.r2);
+	GetPrivateProfileStringA("Cam", "r3", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.r3);
+	GetPrivateProfileStringA("Cam", "t1", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.t1);
+	GetPrivateProfileStringA("Cam", "t2", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.t2);
+	GetPrivateProfileStringA("Cam", "t3", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
+	sscanf_s(paraStr, "%lf", &camPara.t3);
 }
 
 void changeNoiseMethod(int state, void *)

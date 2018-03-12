@@ -58,5 +58,5 @@ public:
 };
 extern CRect VisionDisplayRect;
 extern float yy;
-extern double RealTimrFocusFx, RealTimeIntrinsiccx,RealTimeIntrinsiccy,RealTimrFocusFy;
+extern double RealTimeFocusFx, RealTimeIntrinsiccx,RealTimeIntrinsiccy,RealTimeFocusFy;
 extern int ContourCenterPointSolveMethodFlag;

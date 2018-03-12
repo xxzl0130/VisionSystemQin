@@ -43,7 +43,7 @@ double HoseDrogue_X_Large[ROWS][24]={0},HoseDrogue_Y_Large[ROWS][24]={0},HoseDro
 //视景加载标志，为了显示“视景加载中”这几个字用
 int Vision_Loading_Flag = 0;
 //通过摄像机标定获取的x，y轴焦距和图像中心点坐标
-double RealTimrFocusFx, RealTimeIntrinsiccx,RealTimeIntrinsiccy,RealTimrFocusFy;
+double RealTimeFocusFx, RealTimeIntrinsiccx,RealTimeIntrinsiccy,RealTimeFocusFy;
 //轮廓求解方法标志
 int ContourCenterPointSolveMethodFlag = 0;
 //系统仿真时间对应为小时，分钟，秒
@@ -879,8 +879,8 @@ void CVisionSystemQinDlg::OnTcnSelchangeTabVisionimageresult(NMHDR *pNMHDR, LRES
 					CameraChannel->setDrawArea(0.0,0.0,1.0,1.0);
 				}
 
-				RealTimrFocusFx = ResultIntrinsicfx;
-				RealTimrFocusFy = ResultIntrinsicfy;
+				RealTimeFocusFx = ResultIntrinsicfx;
+				RealTimeFocusFy = ResultIntrinsicfy;
 				RealTimeIntrinsiccx = ResultIntrinsiccx;
 				RealTimeIntrinsiccy = ResultIntrinsiccy;
 				ContourCenterPointSolveMethodFlag = 0; 
@@ -920,8 +920,8 @@ void CVisionSystemQinDlg::OnTcnSelchangeTabVisionimageresult(NMHDR *pNMHDR, LRES
 			{
 				CameraChannel->setDrawArea(0.0,0.0,1.0,1.0);
 			}
-			RealTimrFocusFx = ResultIntrinsicfx;
-			RealTimrFocusFy = ResultIntrinsicfy;
+			RealTimeFocusFx = ResultIntrinsicfx;
+			RealTimeFocusFy = ResultIntrinsicfy;
 			RealTimeIntrinsiccx = ResultIntrinsiccx;
 			RealTimeIntrinsiccy = ResultIntrinsiccy;
 			ContourCenterPointSolveMethodFlag = 0; 
@@ -948,8 +948,8 @@ void CVisionSystemQinDlg::OnTcnSelchangeTabVisionimageresult(NMHDR *pNMHDR, LRES
 					CameraChannel->setDrawArea(0.0,0.0,1.0,1.0);
 				}
 
-				RealTimrFocusFx = ResultIntrinsicfx;
-				RealTimrFocusFy = ResultIntrinsicfy;
+				RealTimeFocusFx = ResultIntrinsicfx;
+				RealTimeFocusFy = ResultIntrinsicfy;
 				RealTimeIntrinsiccx = ResultIntrinsiccx;
 				RealTimeIntrinsiccy = ResultIntrinsiccy;
 				ContourCenterPointSolveMethodFlag = 0; 
