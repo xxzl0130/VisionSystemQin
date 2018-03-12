@@ -11,7 +11,8 @@
 #include <boost/bind.hpp>
 #include "msglink.hpp"
 #include <ctime>
-#include <Eigen/Dense>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 using namespace std;
 using namespace cv;
@@ -22,10 +23,13 @@ using namespace cv;
 
 #define CAM_INI_FILE_NAME	"./camera.ini"
 
+#define rad2deg(x) ((x) / M_PI * 180)
+
 class DispMsg : public MsgData
 {
 public:
 	cv::Mat image;
+	double realX, realY, realZ, realHeading, realPitch, offsetX, offsetY, offsetZ;
 };
 
 struct
@@ -35,12 +39,14 @@ struct
 
 int noiseValue, brightnessValue, contrastValue, noiseMethodValue;
 enum {GaussNoise, UniformNoise, ImpulseNoise}noiseMethod;
+Mat physicSizeMatrix, probeMat, pixelMat;
+
 
 void initWindows();
 void initCameraParameters();
 void changeNoiseMethod(int state,void *);
 void imagePreProcess(MsgLink<DispMsg>* ld);
-void imageProcess(Mat& img);
+Mat imageProcess(Mat& img);
 vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items);
 // 质心法定位
 vector<Point2f> centerLocate(const vector<vector<Point>>& contours);
@@ -56,11 +62,14 @@ int main()
 	th.detach();
 	int fpsCtrl = min(static_cast<unsigned int>(1000 / cap.get(CV_CAP_PROP_FPS)),125u);
 	cout << fpsCtrl << endl;
+	FILE* locateData;
+	fopen_s(&locateData,"locate.csv", "r");
 	while (true)
 	{
 		DispMsg* md = linkd.prepareMsg();
 		cap >> md->image;
-		// do_some_processing(md->image);
+		fscanf_s(locateData, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &md->realX, &md->realY, &md->realZ, &md->realHeading,
+		         &md->realPitch, &md->offsetX, &md->offsetY, &md->offsetZ);
 		linkd.send();
 		if (linkd.isClosed())
 		{
@@ -120,6 +129,15 @@ void initCameraParameters()
 	sscanf_s(paraStr, "%lf", &camPara.t2);
 	GetPrivateProfileStringA("Cam", "t3", "0.0", paraStr, 32, CAM_INI_FILE_NAME);
 	sscanf_s(paraStr, "%lf", &camPara.t3);
+	double physicSize[3][3] = { {1.0, 0.0, camPara.cx},
+					            {0.0, 1.0, camPara.cy},
+	                            {0.0, 0.0, 1.0 } };
+	double prob[3][3] = { { camPara.fx, camPara.s , camPara.x0},
+						  { 0.0,        camPara.fy, camPara.y0},
+						  { 0.0,           0.0,         1.0 } };
+	Mat(3, 3, CV_64FC1, physicSize).copyTo(physicSizeMatrix);
+	Mat(3, 3, CV_64FC1, prob).copyTo(probeMat);
+	Mat(3, 1, CV_64FC1).copyTo(pixelMat);
 }
 
 void changeNoiseMethod(int state, void *)
@@ -146,6 +164,8 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	initWindows();
 	DispMsg* md;
 	Mat srcImg;
+	FILE* resData;
+	fopen_s(&resData, "res.csv", "w");
 	while (true)
 	{
 		md = ld->receive();
@@ -173,9 +193,17 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 			}
 			imshow(SourceWindowName, srcImg);
 			double s = double(clock()) / CLOCKS_PER_SEC;
-			imageProcess(srcImg);
+			Mat res = imageProcess(srcImg);
 			double t = double(clock()) / CLOCKS_PER_SEC;
 			cout << (t - s) << endl;
+
+			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
+				md->realX, res.at<double>(0) + md->offsetX, md->realX - res.at<double>(0) - md->offsetX,
+				md->realY, res.at<double>(1) + md->offsetY, md->realY - res.at<double>(1) - md->offsetY,
+				md->realZ, res.at<double>(2) + md->offsetZ, md->realZ - res.at<double>(2) - md->offsetZ,
+				md->realHeading, res.at<double>(3), md->realHeading - res.at<double>(3),
+				md->realPitch, res.at<double>(4), md->realPitch - res.at<double>(4));
+			fflush(resData);
 		}
 		if (waitKey(1) > 0)
 		{
@@ -185,11 +213,10 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	ld->close();
 }
 
-void imageProcess(Mat& img)
+Mat imageProcess(Mat& img)
 {
 	vector<Mat> channels;
 	Mat dst;
-
 	split(img, channels);
 	channels.at(2).copyTo(dst);
 	// R-G-B
@@ -215,20 +242,51 @@ void imageProcess(Mat& img)
 		contours = twoMeans(contours)[1];
 		//cout << contours.size() << endl;
 	}
-	Mat tmp;
-	dst.convertTo(tmp, CV_8UC3);
-	cvtColor(tmp, tmp, CV_GRAY2BGR);
-	drawContours(tmp, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
+	Mat tmpImg;
+	dst.convertTo(tmpImg, CV_8UC3);
+	cvtColor(tmpImg, tmpImg, CV_GRAY2BGR);
+	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
 	
 	auto centers = ellipseLocate(contours);
 	// 大圆的拟合
 	auto ell = fitEllipse(centers);
+	float locateMinX = 1e8, locateMaxX = -1e8, locateMinY = 1e8, locateMaxY = -1e8;
 	for(auto& it:centers)
 	{
-		circle(tmp, it, 1, Scalar(0, 0, 255), 2);
+		circle(tmpImg, it, 1, Scalar(0, 0, 255), 2);
+		locateMinX = min(locateMinX, it.x);
+		locateMaxX = max(locateMaxX, it.x);
+		locateMinY = min(locateMinY, it.y);
+		locateMaxY = min(locateMaxY, it.y);
 	}
-	ellipse(tmp, ell, Scalar(0, 0, 255), 2, LINE_AA);
-	imshow("contours", tmp);
+	ellipse(tmpImg, ell, Scalar(0, 0, 255), 2, LINE_AA);
+	imshow("contours", tmpImg);
+
+	// 向三维求解
+	double centerX = ell.center.x,centerY = ell.center.y;
+	double xPixelSize = locateMaxX - locateMinX;
+	double yPixelSize = locateMaxY - locateMinY;
+	double imageDetectDistanceX = camPara.fx * 0.82 / xPixelSize + 0.592;
+	double imageDetectDistanceY = camPara.fy * 0.82 / yPixelSize + 0.592;
+	pixelMat.at<double>(0) = centerX * imageDetectDistanceX;
+	pixelMat.at<double>(1) = centerY * imageDetectDistanceX;
+	pixelMat.at<double>(2) = imageDetectDistanceX;
+
+	Mat tmpMat = physicSizeMatrix * probeMat,tmpMatInv;
+	invert(tmpMat, tmpMatInv);
+	Mat cameraMat = tmpMatInv * pixelMat;
+
+	double solveX = cameraMat.at<double>(0), solveY = cameraMat.at<double>(2), solveZ = -cameraMat.at<double>(1);
+	double solveHeading = atan(-solveX / solveY), solvePitch = atan(solveZ / solveY);
+
+	Mat res(5, 1, CV_64FC1);
+	res.at<double>(0) = solveX;
+	res.at<double>(1) = solveY;
+	res.at<double>(2) = solveZ;
+	res.at<double>(3) = rad2deg(solveHeading);
+	res.at<double>(4) = rad2deg(solvePitch);
+	
+	return res;
 }
 
 vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)

@@ -187,13 +187,13 @@ BOOL CImageProcess::OnInitDialog()
 	this->SendMessage(WM_MY_MESSAGE,0,0);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
-
+#define SAVE_IMAGE 1
 //图像处理函数，核心函数，完成图像的检测、跟踪、定位以及各种干扰的添加。
 void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 {
 	clock_t start = clock();
 	IplImage* FollowImage;
-#ifdef SAVE_IMAGE
+#if SAVE_IMAGE
 	char videoname[64];
 	static uint32_t cnt = 0;
 	int p[3];
@@ -1381,7 +1381,7 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 			cvDestroyWindow("锥套定位");
 	hWnd->SendMessage(WM_MY_MESSAGE,0,0);
 
-	fprintf(stderr, "%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f\n", DrogueLocateAccurateX, DrogueLocateAccurateY, DrogueLocateAccurateZ, ImageDetectHeading[CurrentFrame-1], ImageDetectPitch[CurrentFrame-1], ImageDroguePositionX, ImageDroguePositionY, ImageDroguePositionZ);
+	fprintf(stderr, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n", DroguePosition[0], DroguePosition[1], DroguePosition[2], ResultAtitudeHeading, ResultAtitudePitch, CameraTranformpos[0],CameraTranformpos[1], CameraTranformpos[2]);
 	fflush(stderr);
 }
 
