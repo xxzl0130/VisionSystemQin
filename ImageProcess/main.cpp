@@ -166,6 +166,8 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	Mat srcImg;
 	FILE* resData;
 	fopen_s(&resData, "res.csv", "w");
+	fprintf_s(resData,
+	          "realX,measureX,errorX,realY,measureY,errorY,realZ,measureZ,errorZ,realHeading,measureHeading,errorHeading,realPitch,measurePitch,errorPitch,timeCost\n");
 	while (true)
 	{
 		md = ld->receive();
@@ -197,12 +199,12 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 			double t = double(clock()) / CLOCKS_PER_SEC;
 			cout << (t - s) << endl;
 
-			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
+			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
 				md->realX, res.at<double>(0) + md->offsetX, md->realX - res.at<double>(0) - md->offsetX,
 				md->realY, res.at<double>(1) + md->offsetY, md->realY - res.at<double>(1) - md->offsetY,
 				md->realZ, res.at<double>(2) + md->offsetZ, md->realZ - res.at<double>(2) - md->offsetZ,
 				md->realHeading, res.at<double>(3), md->realHeading - res.at<double>(3),
-				md->realPitch, res.at<double>(4), md->realPitch - res.at<double>(4));
+				md->realPitch, res.at<double>(4), md->realPitch - res.at<double>(4),t - s);
 			fflush(resData);
 		}
 		if (waitKey(1) > 0)
@@ -215,9 +217,27 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 
 Mat imageProcess(Mat& img)
 {
+	static bool firstIn = true;
+	static double lastCenterX = 0, lastCenterY = 0;
+	const static double offsetSpeedFactor = 20,offsetPixelFactor = 5;
+	static Rect roi;
+
 	vector<Mat> channels;
 	Mat dst;
-	split(img, channels);
+	Mat tmpImg;
+
+	if(!firstIn)
+	{
+		img(roi).copyTo(dst);
+	}
+	else
+	{
+		img.copyTo(dst);
+	}
+	rectangle(img, roi, Scalar(0, 255, 0), 2, LINE_AA);
+	imshow("roi", img);
+
+	split(dst, channels);
 	channels.at(2).copyTo(dst);
 	// R-G-B
 	dst -= channels.at(0) + channels.at(1);
@@ -231,7 +251,7 @@ Mat imageProcess(Mat& img)
 	const auto element = getStructuringElement(MORPH_ELLIPSE,Size(5,5));
 	dilate(dst, dst, element);
 	erode(dst, dst, element);
-	imshow("Dilation", dst);
+	//imshow("Dilation", dst);
 
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
@@ -242,9 +262,9 @@ Mat imageProcess(Mat& img)
 		contours = twoMeans(contours)[1];
 		//cout << contours.size() << endl;
 	}
-	Mat tmpImg;
-	dst.convertTo(tmpImg, CV_8UC3);
-	cvtColor(tmpImg, tmpImg, CV_GRAY2BGR);
+	
+	//dst.convertTo(tmpImg, CV_8UC3);
+	cvtColor(dst, tmpImg, CV_GRAY2BGR);
 	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
 	
 	auto centers = ellipseLocate(contours);
@@ -257,13 +277,24 @@ Mat imageProcess(Mat& img)
 		locateMinX = min(locateMinX, it.x);
 		locateMaxX = max(locateMaxX, it.x);
 		locateMinY = min(locateMinY, it.y);
-		locateMaxY = min(locateMaxY, it.y);
+		locateMaxY = max(locateMaxY, it.y);
 	}
 	ellipse(tmpImg, ell, Scalar(0, 0, 255), 2, LINE_AA);
 	imshow("contours", tmpImg);
 
 	// 向三维求解
 	double centerX = ell.center.x,centerY = ell.center.y;
+	
+	if(!firstIn)
+	{// 追踪状态
+		centerX += roi.x;
+		centerY += roi.y;
+		locateMinX += roi.x;
+		locateMinY += roi.y;
+		locateMaxX += roi.x;
+		locateMaxY += roi.y;
+	}
+
 	double xPixelSize = locateMaxX - locateMinX;
 	double yPixelSize = locateMaxY - locateMinY;
 	double imageDetectDistanceX = camPara.fx * 0.82 / xPixelSize + 0.592;
@@ -286,6 +317,56 @@ Mat imageProcess(Mat& img)
 	res.at<double>(3) = rad2deg(solveHeading);
 	res.at<double>(4) = rad2deg(solvePitch);
 	
+	if(firstIn)
+	{
+		roi.x = max(locateMinX - xPixelSize / offsetPixelFactor * 2, 0.0);
+		roi.y = max(locateMinY - yPixelSize / offsetPixelFactor * 2, 0.0);
+		roi.width = xPixelSize + xPixelSize / offsetPixelFactor * 4;
+		roi.height = yPixelSize + xPixelSize / offsetPixelFactor * 4;
+		firstIn = false;
+	}
+	else
+	{
+		// 差分求速度
+		double vX = centerX - lastCenterX;
+		double vY = centerY - lastCenterY;
+		double offsetX1 = xPixelSize / offsetPixelFactor,offsetX2 = vX * offsetSpeedFactor;
+		double offsetY1 = yPixelSize / offsetPixelFactor,offsetY2 = vY * offsetSpeedFactor;
+		roi.x = max(locateMinX - offsetX1, 0.0);
+		roi.y = max(locateMinY - offsetY1, 0.0);
+		roi.width = xPixelSize + offsetX1 * 2;
+		roi.height = yPixelSize + offsetY1 * 2; 
+		// 向运动方向偏移更多
+		if(vX < 0)
+		{
+			roi.x += offsetX2;
+			roi.width -= offsetX2;
+		}
+		else
+		{
+			roi.width += offsetX2;
+		}
+		if (vY < 0)
+		{
+			roi.y += offsetY2;
+			roi.height -= offsetY2;
+		}
+		else
+		{
+			roi.height += offsetY2;
+		}
+		if(roi.x + roi.width > img.rows)
+		{
+			roi.width = img.rows - roi.x;
+		}
+		if (roi.y + roi.height > img.cols)
+		{
+			roi.height = img.cols - roi.x;
+		}
+	}
+	lastCenterX = centerX;
+	lastCenterY = centerY;
+
 	return res;
 }
 

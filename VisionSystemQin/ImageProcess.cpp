@@ -187,7 +187,7 @@ BOOL CImageProcess::OnInitDialog()
 	this->SendMessage(WM_MY_MESSAGE,0,0);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
-#define SAVE_IMAGE 1
+#define SAVE_IMAGE 0
 //图像处理函数，核心函数，完成图像的检测、跟踪、定位以及各种干扰的添加。
 void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 {
