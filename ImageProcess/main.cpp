@@ -37,10 +37,20 @@ struct
 	double fx, fy, x0, y0, cx, cy, s, k1, k2, p1, p2, r1, r2, r3, t1, t2, t3;
 }camPara;
 
+
+
 int noiseValue, brightnessValue, contrastValue, noiseMethodValue;
 enum {GaussNoise, UniformNoise, ImpulseNoise}noiseMethod;
 Mat physicSizeMatrix, probeMat, pixelMat;
 
+struct
+{
+	enum Filter { GaussBlur, UniformBlur, MedianBlur, BilaFilter, noFilter } filter;
+	enum DE { dilateAndErode, erodeAndDilate } de;
+	enum Locate3 { Pinhole, LHM, EPNP }loacteMethod3D;
+	enum Locate2 { Center, Ellipse} locateMethod2D;
+	bool roi;
+} imageProcessMethod;
 
 void initWindows();
 void initCameraParameters();
@@ -52,6 +62,7 @@ vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items);
 vector<Point2f> centerLocate(const vector<vector<Point>>& contours);
 // 椭圆法定位
 vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours);
+void printMethods();
 
 int main()
 {
@@ -61,7 +72,7 @@ int main()
 	boost::thread th(boost::bind(imagePreProcess, &linkd));
 	th.detach();
 	int fpsCtrl = min(static_cast<unsigned int>(1000 / cap.get(CV_CAP_PROP_FPS)),125u);
-	cout << fpsCtrl << endl;
+	std::cout << fpsCtrl << endl;
 	FILE* locateData;
 	fopen_s(&locateData,"locate.csv", "r");
 	while (true)
@@ -168,6 +179,12 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	fopen_s(&resData, "res.csv", "w");
 	fprintf_s(resData,
 	          "realX,measureX,errorX,realY,measureY,errorY,realZ,measureZ,errorZ,realHeading,measureHeading,errorHeading,realPitch,measurePitch,errorPitch,timeCost\n");
+	imageProcessMethod.de = imageProcessMethod.dilateAndErode;
+	imageProcessMethod.filter = imageProcessMethod.GaussBlur;
+	imageProcessMethod.loacteMethod3D = imageProcessMethod.Pinhole;
+	imageProcessMethod.locateMethod2D = imageProcessMethod.Ellipse;
+	imageProcessMethod.roi = true;
+	printMethods();
 	while (true)
 	{
 		md = ld->receive();
@@ -197,7 +214,7 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 			double s = double(clock()) / CLOCKS_PER_SEC;
 			Mat res = imageProcess(srcImg);
 			double t = double(clock()) / CLOCKS_PER_SEC;
-			cout << (t - s) << endl;
+			//std::cout << (t - s) << endl;
 
 			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
 				md->realX, res.at<double>(0) + md->offsetX, md->realX - res.at<double>(0) - md->offsetX,
@@ -205,13 +222,72 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 				md->realZ, res.at<double>(2) + md->offsetZ, md->realZ - res.at<double>(2) - md->offsetZ,
 				md->realHeading, res.at<double>(3), md->realHeading - res.at<double>(3),
 				md->realPitch, res.at<double>(4), md->realPitch - res.at<double>(4),t - s);
-			fflush(resData);
+			std::fflush(resData);
 		}
-		if (waitKey(1) > 0)
+		auto key = waitKey(1);
+		switch(key)
 		{
+		case 0:
+			continue;
+			break;
+		case 'g':
+			imageProcessMethod.filter = imageProcessMethod.GaussBlur;
+			break;
+		case 'b':
+			imageProcessMethod.filter = imageProcessMethod.BilaFilter;
+			break;
+		case 'u':
+			imageProcessMethod.filter = imageProcessMethod.UniformBlur;
+			break;
+		case 'm':
+			imageProcessMethod.filter = imageProcessMethod.MedianBlur;
+			break;
+		case 'n':
+			imageProcessMethod.filter = imageProcessMethod.noFilter;
+			break;
+		case 'r':
+			imageProcessMethod.roi = !imageProcessMethod.roi;
+			break;
+		case 'p':
+			imageProcessMethod.loacteMethod3D = imageProcessMethod.Pinhole;
+			break;
+		case 'l':
+			imageProcessMethod.loacteMethod3D = imageProcessMethod.LHM;
+			break;
+		case 'e':
+			imageProcessMethod.loacteMethod3D = imageProcessMethod.EPNP;
+			break;
+		case 'd':
+			if(imageProcessMethod.de == imageProcessMethod.dilateAndErode)
+			{
+				imageProcessMethod.de = imageProcessMethod.erodeAndDilate;
+			}
+			else
+			{
+				imageProcessMethod.de = imageProcessMethod.dilateAndErode;
+			}
+			break;
+		case 'c':
+			if (imageProcessMethod.locateMethod2D == imageProcessMethod.Center)
+			{
+				imageProcessMethod.locateMethod2D = imageProcessMethod.Ellipse;
+			}
+			else
+			{
+				imageProcessMethod.locateMethod2D = imageProcessMethod.Center;
+			}
+			break;
+		case 27:
+			goto endProcess;
+		default:
 			break;
 		}
+		if(key > 0)
+		{
+			printMethods();
+		}
 	}
+endProcess:
 	ld->close();
 }
 
@@ -219,12 +295,16 @@ Mat imageProcess(Mat& img)
 {
 	static bool firstIn = true;
 	static double lastCenterX = 0, lastCenterY = 0;
-	const static double offsetSpeedFactor = 20,offsetPixelFactor = 5;
+	const static double offsetSpeedFactor = 15,offsetPixelFactor = 7;
 	static Rect roi;
+	//const static bool USE_ROI = true;
+	static uint32_t frameCount = 0;
 
 	vector<Mat> channels;
 	Mat dst;
 	Mat tmpImg;
+
+	++frameCount;
 
 	if(!firstIn)
 	{
@@ -234,7 +314,9 @@ Mat imageProcess(Mat& img)
 	{
 		img.copyTo(dst);
 	}
-	rectangle(img, roi, Scalar(0, 255, 0), 2, LINE_AA);
+	if(imageProcessMethod.roi)
+		rectangle(img, roi, Scalar(0, 255, 0), 2, LINE_AA);
+	//imwrite("./image/src" + to_string(frameCount) + ".jpg", img, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
 	imshow("roi", img);
 
 	split(dst, channels);
@@ -242,15 +324,48 @@ Mat imageProcess(Mat& img)
 	// R-G-B
 	dst -= channels.at(0) + channels.at(1);
 	//imshow("R-G-B", dst);
-	GaussianBlur(dst, dst, Size(5, 5), 1);
+	switch(imageProcessMethod.filter)
+	{
+	case imageProcessMethod.GaussBlur:
+		GaussianBlur(dst, dst, Size(5, 5), 1);
+		break;
+	case imageProcessMethod.MedianBlur:
+		medianBlur(dst, dst, 5);
+		break;
+	case imageProcessMethod.UniformBlur:
+		blur(dst, dst, Size(5, 5));
+		break;
+	case imageProcessMethod.BilaFilter:
+		bilateralFilter(dst, tmpImg, 5, 10, 20);
+		tmpImg.copyTo(dst);
+		break;
+	case imageProcessMethod.noFilter:
+		break;
+	default:
+		break;
+	}
+	
 	//imshow("smooth", dst);
 	threshold(dst, dst, 0, 255, THRESH_OTSU);
 	//imshow("binary", dst);
 
 	// 膨胀 腐蚀
 	const auto element = getStructuringElement(MORPH_ELLIPSE,Size(5,5));
-	dilate(dst, dst, element);
-	erode(dst, dst, element);
+	switch(imageProcessMethod.de)
+	{
+	case imageProcessMethod.dilateAndErode:
+		dilate(dst, dst, element);
+		erode(dst, dst, element);
+		break;
+	case imageProcessMethod.erodeAndDilate:
+		erode(dst, dst, element);
+		dilate(dst, dst, element);
+		break;
+	default:
+		dilate(dst, dst, element);
+		erode(dst, dst, element);
+	}
+	
 	//imshow("Dilation", dst);
 
 	vector<vector<Point>> contours;
@@ -267,13 +382,26 @@ Mat imageProcess(Mat& img)
 	cvtColor(dst, tmpImg, CV_GRAY2BGR);
 	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
 	
-	auto centers = ellipseLocate(contours);
+	vector<Point2f> centers;
+	switch(imageProcessMethod.loacteMethod3D)
+	{
+	case imageProcessMethod.Center:
+		centers = centerLocate(contours);
+		break;
+	case imageProcessMethod.Ellipse:
+		centers = ellipseLocate(contours);
+		break;
+	default:
+		centers = ellipseLocate(contours);
+		break;
+	}
+
 	// 大圆的拟合
 	auto ell = fitEllipse(centers);
 	float locateMinX = 1e8, locateMaxX = -1e8, locateMinY = 1e8, locateMaxY = -1e8;
 	for(auto& it:centers)
 	{
-		circle(tmpImg, it, 1, Scalar(0, 0, 255), 2);
+		//circle(tmpImg, it, 1, Scalar(0, 0, 255), 2);
 		locateMinX = min(locateMinX, it.x);
 		locateMaxX = max(locateMaxX, it.x);
 		locateMinY = min(locateMinY, it.y);
@@ -281,6 +409,7 @@ Mat imageProcess(Mat& img)
 	}
 	ellipse(tmpImg, ell, Scalar(0, 0, 255), 2, LINE_AA);
 	imshow("contours", tmpImg);
+	//imwrite("./image/dst" + to_string(frameCount) + ".jpg", tmpImg, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
 
 	// 向三维求解
 	double centerX = ell.center.x,centerY = ell.center.y;
@@ -317,52 +446,61 @@ Mat imageProcess(Mat& img)
 	res.at<double>(3) = rad2deg(solveHeading);
 	res.at<double>(4) = rad2deg(solvePitch);
 	
-	if(firstIn)
+	if (imageProcessMethod.roi)
 	{
-		roi.x = max(locateMinX - xPixelSize / offsetPixelFactor * 2, 0.0);
-		roi.y = max(locateMinY - yPixelSize / offsetPixelFactor * 2, 0.0);
-		roi.width = xPixelSize + xPixelSize / offsetPixelFactor * 4;
-		roi.height = yPixelSize + xPixelSize / offsetPixelFactor * 4;
-		firstIn = false;
+		if (firstIn)
+		{
+			roi.x = max(locateMinX - xPixelSize / offsetPixelFactor * 2, 0.0);
+			roi.y = max(locateMinY - yPixelSize / offsetPixelFactor * 2, 0.0);
+			roi.width = xPixelSize + xPixelSize / offsetPixelFactor * 4;
+			roi.height = yPixelSize + xPixelSize / offsetPixelFactor * 4;
+			firstIn = false;
+		}
+		else
+		{
+			// 差分求速度
+			double vX = centerX - lastCenterX;
+			double vY = centerY - lastCenterY;
+			double offsetX1 = xPixelSize / offsetPixelFactor, offsetX2 = vX * offsetSpeedFactor;
+			double offsetY1 = yPixelSize / offsetPixelFactor, offsetY2 = vY * offsetSpeedFactor;
+			roi.x = max(locateMinX - offsetX1, 0.0);
+			roi.y = max(locateMinY - offsetY1, 0.0);
+			roi.width = xPixelSize + offsetX1 * 2;
+			roi.height = yPixelSize + offsetY1 * 2;
+			// 向运动方向偏移更多
+			if (vX < 0)
+			{
+				roi.x += offsetX2;
+				roi.width -= offsetX2;
+			}
+			else
+			{
+				roi.width += offsetX2;
+			}
+			if (vY < 0)
+			{
+				roi.y += offsetY2;
+				roi.height -= offsetY2;
+			}
+			else
+			{
+				roi.height += offsetY2;
+			}
+			if (roi.x + roi.width > img.cols)
+			{
+				roi.width = img.cols - roi.x;
+			}
+			if (roi.y + roi.height > img.rows)
+			{
+				roi.height = img.rows - roi.x;
+			}
+		}
 	}
 	else
 	{
-		// 差分求速度
-		double vX = centerX - lastCenterX;
-		double vY = centerY - lastCenterY;
-		double offsetX1 = xPixelSize / offsetPixelFactor,offsetX2 = vX * offsetSpeedFactor;
-		double offsetY1 = yPixelSize / offsetPixelFactor,offsetY2 = vY * offsetSpeedFactor;
-		roi.x = max(locateMinX - offsetX1, 0.0);
-		roi.y = max(locateMinY - offsetY1, 0.0);
-		roi.width = xPixelSize + offsetX1 * 2;
-		roi.height = yPixelSize + offsetY1 * 2; 
-		// 向运动方向偏移更多
-		if(vX < 0)
-		{
-			roi.x += offsetX2;
-			roi.width -= offsetX2;
-		}
-		else
-		{
-			roi.width += offsetX2;
-		}
-		if (vY < 0)
-		{
-			roi.y += offsetY2;
-			roi.height -= offsetY2;
-		}
-		else
-		{
-			roi.height += offsetY2;
-		}
-		if(roi.x + roi.width > img.rows)
-		{
-			roi.width = img.rows - roi.x;
-		}
-		if (roi.y + roi.height > img.cols)
-		{
-			roi.height = img.cols - roi.x;
-		}
+		roi.x = roi.y = 0;
+		roi.width = img.cols;
+		roi.height = img.rows;
 	}
 	lastCenterX = centerX;
 	lastCenterY = centerY;
@@ -488,4 +626,58 @@ vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours)
 		locate.push_back(re.center);
 	}
 	return locate;
+}
+
+void printMethods()
+{
+	system("cls");
+	cout << "Image filter: ";
+	switch (imageProcessMethod.filter)
+	{
+	case imageProcessMethod.BilaFilter:
+		cout << ">Bila Filter(b)< Gauss Blur(g)  Media Blur(m)  Uniform Blur(u)  no filter(n)" << endl;
+		break;
+	case imageProcessMethod.GaussBlur:
+		cout << " Bila Filter(b) >Gauss Blur(g)< Media Blur(m)  Uniform Blur(u)  no filter(n)" << endl;
+		break;
+	case imageProcessMethod.MedianBlur:
+		cout << " Bila Filter(b)  Gauss Blur(g) >Media Blur(m)< Uniform Blur(u)  no filter(n)" << endl;
+		break;
+	case imageProcessMethod.UniformBlur:
+		cout << " Bila Filter(b)  Gauss Blur(g)  Media Blur(m) >Uniform Blur(u)< no filter(n)" << endl;
+		break;
+	case imageProcessMethod.noFilter:
+		cout << " Bila Filter (b)  Gauss Blur(g)  Media Blur(m)  Uniform Blur(u) >no filter(n)<" << endl;
+		break;
+	}
+
+	cout << "2D locate method: ";
+	switch (imageProcessMethod.locateMethod2D)
+	{
+	case imageProcessMethod.Center:
+		cout << ">center(c)< ellipse(c)" << endl;
+		break;
+	case imageProcessMethod.Ellipse:
+		cout << " center(c) >ellipse(c)<" << endl;
+		break;
+	}
+
+	cout << "3D locate method: ";
+	switch (imageProcessMethod.loacteMethod3D)
+	{
+	case imageProcessMethod.EPNP:
+		cout << ">EPNP(e)< LHM(l)  PinHole(p)" << endl;
+		break;
+	case imageProcessMethod.LHM:
+		cout << " EPNP(e) >LHM(l)< PinHole(p)" << endl;
+		break;
+	case imageProcessMethod.Pinhole:
+		cout << " EPNP(e)  LHM(l) >PinHole(p)<" << endl;
+		break;
+	}
+
+	cout << "Use ROI (r):" << (imageProcessMethod.roi ? "True" : "False") << endl;
+
+	cout << "Morphology (d): " <<
+		(imageProcessMethod.de == imageProcessMethod.dilateAndErode ? "Dilate and Erode" : "Erode and Dilate") << endl;
 }
