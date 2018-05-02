@@ -187,11 +187,11 @@ BOOL CImageProcess::OnInitDialog()
 	this->SendMessage(WM_MY_MESSAGE,0,0);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
-#define SAVE_IMAGE 0
+#define SAVE_IMAGE 1
 //图像处理函数，核心函数，完成图像的检测、跟踪、定位以及各种干扰的添加。
 void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 {
-	clock_t start = clock();
+	clock_t start = clock(); 
 	IplImage* FollowImage;
 #if SAVE_IMAGE
 	char videoname[64];
@@ -2051,7 +2051,7 @@ CvMat* CImageProcess::SolveAtitude_LHM(CvMat Input3DPoint, CvMat Input2DPoint, C
 	while(1)
 	{
 		double ERt = 0;
-		CvMat *temp = cvCreateMat(3,1,CV_64FC1);
+		CvMat *temp = cvCreateMat(3, 1, CV_64FC1);
 		cvSetZero(temp);
 		CvMat *tempVi = cvCreateMat(3,3,CV_64FC1);
 		cvSetZero(tempVi);

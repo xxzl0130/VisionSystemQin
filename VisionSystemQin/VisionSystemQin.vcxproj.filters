@@ -286,9 +286,6 @@
     <Image Include="Bitmap\AirReFuelling.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\..\VisionSystemQin\VisionSystemQin\Bitmap\AirRefuelling.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="Bitmap\BackDistance.bmp">
       <Filter>Resource Files</Filter>
     </Image>

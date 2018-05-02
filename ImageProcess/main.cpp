@@ -13,12 +13,11 @@
 #include <ctime>
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include "LHM.hpp"
 
 using namespace std;
 using namespace cv;
 
-#define VIDEO_WIDTH			640
-#define VIDEO_HEIGHT		480
 #define SourceWindowName "Source"
 
 #define CAM_INI_FILE_NAME	"./camera.ini"
@@ -63,6 +62,7 @@ vector<Point2f> centerLocate(const vector<vector<Point>>& contours);
 // 椭圆法定位
 vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours);
 void printMethods();
+Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY,double xPixelSize,double yPixelSize,const Rect& roi);
 
 int main()
 {
@@ -211,9 +211,9 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 				}
 			}
 			imshow(SourceWindowName, srcImg);
-			double s = double(clock()) / CLOCKS_PER_SEC;
+			double s = getTickCount() / getTickFrequency();
 			Mat res = imageProcess(srcImg);
-			double t = double(clock()) / CLOCKS_PER_SEC;
+			double t = getTickCount() / getTickFrequency();
 			//std::cout << (t - s) << endl;
 
 			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
@@ -296,8 +296,7 @@ Mat imageProcess(Mat& img)
 	static bool firstIn = true;
 	static double lastCenterX = 0, lastCenterY = 0;
 	const static double offsetSpeedFactor = 15,offsetPixelFactor = 7;
-	static Rect roi;
-	//const static bool USE_ROI = true;
+	static Rect roi(0,0,0,0);
 	static uint32_t frameCount = 0;
 
 	vector<Mat> channels;
@@ -306,6 +305,7 @@ Mat imageProcess(Mat& img)
 
 	++frameCount;
 
+	// 设置roi
 	if(!firstIn)
 	{
 		img(roi).copyTo(dst);
@@ -319,11 +319,14 @@ Mat imageProcess(Mat& img)
 	//imwrite("./image/src" + to_string(frameCount) + ".jpg", img, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
 	imshow("roi", img);
 
+	// 颜色分离差分
 	split(dst, channels);
 	channels.at(2).copyTo(dst);
 	// R-G-B
 	dst -= channels.at(0) + channels.at(1);
 	//imshow("R-G-B", dst);
+
+	// 滤波
 	switch(imageProcessMethod.filter)
 	{
 	case imageProcessMethod.GaussBlur:
@@ -344,8 +347,9 @@ Mat imageProcess(Mat& img)
 	default:
 		break;
 	}
-	
 	//imshow("smooth", dst);
+
+	// 二值化
 	threshold(dst, dst, 0, 255, THRESH_OTSU);
 	//imshow("binary", dst);
 
@@ -365,9 +369,9 @@ Mat imageProcess(Mat& img)
 		dilate(dst, dst, element);
 		erode(dst, dst, element);
 	}
-	
 	//imshow("Dilation", dst);
 
+	// 寻找轮廓，数量大于12时k聚类处理
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 	findContours(dst, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
@@ -380,71 +384,56 @@ Mat imageProcess(Mat& img)
 	
 	//dst.convertTo(tmpImg, CV_8UC3);
 	cvtColor(dst, tmpImg, CV_GRAY2BGR);
-	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2, LINE_AA);
-	
+	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2, LINE_8);
+
+	// 二维定位
 	vector<Point2f> centers;
-	switch(imageProcessMethod.loacteMethod3D)
+	double centerX, centerY;
+	RotatedRect ell;
+	Moments mo;
+	switch(imageProcessMethod.locateMethod2D)
 	{
 	case imageProcessMethod.Center:
 		centers = centerLocate(contours);
+		mo = moments(centers);
+		centerX = mo.m10 / mo.m00;
+		centerY = mo.m01 / mo.m00;
 		break;
 	case imageProcessMethod.Ellipse:
 		centers = ellipseLocate(contours);
+		ell = fitEllipse(centers);
+		centerX = ell.center.x; 
+		centerY = ell.center.y;
 		break;
 	default:
 		centers = ellipseLocate(contours);
+		ell = fitEllipse(centers);
+		centerX = ell.center.x;
+		centerY = ell.center.y;
 		break;
 	}
 
-	// 大圆的拟合
-	auto ell = fitEllipse(centers);
+	circle(tmpImg, Point(centerX, centerY), 2, Scalar(0, 0, 255), 2, LINE_8);
+	imshow("contours", tmpImg);
+	//imwrite("./image/dst" + to_string(frameCount) + ".jpg", tmpImg, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
+
 	float locateMinX = 1e8, locateMaxX = -1e8, locateMinY = 1e8, locateMaxY = -1e8;
-	for(auto& it:centers)
+	for (auto& it : centers)
 	{
 		//circle(tmpImg, it, 1, Scalar(0, 0, 255), 2);
 		locateMinX = min(locateMinX, it.x);
 		locateMaxX = max(locateMaxX, it.x);
 		locateMinY = min(locateMinY, it.y);
 		locateMaxY = max(locateMaxY, it.y);
+		cout << it.x - centerX << " " << it.y - centerY << " " << point2Angle(it,Point2f(centerX,centerY)) << endl;
 	}
-	ellipse(tmpImg, ell, Scalar(0, 0, 255), 2, LINE_AA);
-	imshow("contours", tmpImg);
-	//imwrite("./image/dst" + to_string(frameCount) + ".jpg", tmpImg, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
-
-	// 向三维求解
-	double centerX = ell.center.x,centerY = ell.center.y;
-	
-	if(!firstIn)
-	{// 追踪状态
-		centerX += roi.x;
-		centerY += roi.y;
-		locateMinX += roi.x;
-		locateMinY += roi.y;
-		locateMaxX += roi.x;
-		locateMaxY += roi.y;
-	}
-
 	double xPixelSize = locateMaxX - locateMinX;
 	double yPixelSize = locateMaxY - locateMinY;
-	double imageDetectDistanceX = camPara.fx * 0.82 / xPixelSize + 0.592;
-	double imageDetectDistanceY = camPara.fy * 0.82 / yPixelSize + 0.592;
-	pixelMat.at<double>(0) = centerX * imageDetectDistanceX;
-	pixelMat.at<double>(1) = centerY * imageDetectDistanceX;
-	pixelMat.at<double>(2) = imageDetectDistanceX;
 
-	Mat tmpMat = physicSizeMatrix * probeMat,tmpMatInv;
-	invert(tmpMat, tmpMatInv);
-	Mat cameraMat = tmpMatInv * pixelMat;
-
-	double solveX = cameraMat.at<double>(0), solveY = cameraMat.at<double>(2), solveZ = -cameraMat.at<double>(1);
-	double solveHeading = atan(-solveX / solveY), solvePitch = atan(solveZ / solveY);
-
-	Mat res(5, 1, CV_64FC1);
-	res.at<double>(0) = solveX;
-	res.at<double>(1) = solveY;
-	res.at<double>(2) = solveZ;
-	res.at<double>(3) = rad2deg(solveHeading);
-	res.at<double>(4) = rad2deg(solvePitch);
+	// 向三维求解
+	// 针孔模型
+	auto res = pinholeLocate(centers, centerX, centerY,xPixelSize,yPixelSize, roi);
+	
 	
 	if (imageProcessMethod.roi)
 	{
@@ -680,4 +669,32 @@ void printMethods()
 
 	cout << "Morphology (d): " <<
 		(imageProcessMethod.de == imageProcessMethod.dilateAndErode ? "Dilate and Erode" : "Erode and Dilate") << endl;
+}
+
+Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY, double xPixelSize, double yPixelSize, const Rect& roi)
+{
+	// 追踪状态
+	centerX += roi.x;
+	centerY += roi.y;
+	
+	double imageDetectDistanceX = camPara.fx * 0.82 / xPixelSize + 0.592;
+	double imageDetectDistanceY = camPara.fy * 0.82 / yPixelSize + 0.592;
+	pixelMat.at<double>(0) = centerX * imageDetectDistanceX;
+	pixelMat.at<double>(1) = centerY * imageDetectDistanceX;
+	pixelMat.at<double>(2) = imageDetectDistanceX;
+
+	Mat tmpMat = physicSizeMatrix * probeMat, tmpMatInv;
+	invert(tmpMat, tmpMatInv);
+	Mat cameraMat = tmpMatInv * pixelMat;
+
+	double solveX = cameraMat.at<double>(0), solveY = cameraMat.at<double>(2), solveZ = -cameraMat.at<double>(1);
+	double solveHeading = atan(-solveX / solveY), solvePitch = atan(solveZ / solveY);
+
+	Mat res(5, 1, CV_64FC1);
+	res.at<double>(0) = solveX;
+	res.at<double>(1) = solveY;
+	res.at<double>(2) = solveZ;
+	res.at<double>(3) = rad2deg(solveHeading);
+	res.at<double>(4) = rad2deg(solvePitch);
+	return Mat();
 }

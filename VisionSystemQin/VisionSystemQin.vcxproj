@@ -47,11 +47,17 @@
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
+    <ExecutablePath>$(OpenCV2_ROOT)\bin;$(OpenCV2_ROOT)\x86\vc9\bin;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);$(ExecutablePath)</ExecutablePath>
+    <IncludePath>$(OpenCV2_ROOT)\include;$(OpenCV2_ROOT)\include\opencv2;$(OpenCV2_ROOT)\include\opencv;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(IncludePath)</IncludePath>
+    <LibraryPath>$(OpenCV2_ROOT)\x86\vc9\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>false</LinkIncremental>
+    <ExecutablePath>$(OpenCV2_ROOT)\bin;$(OpenCV2_ROOT)\x86\vc9\bin;$(VC_ExecutablePath_x86);$(WindowsSDK_ExecutablePath);$(VS_ExecutablePath);$(MSBuild_ExecutablePath);$(SystemRoot)\SysWow64;$(FxCopDir);$(PATH);</ExecutablePath>
+    <IncludePath>$(OpenCV2_ROOT)\include;$(OpenCV2_ROOT)\include\opencv2;$(OpenCV2_ROOT)\include\opencv;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>$(OpenCV2_ROOT)\x86\vc9\lib;$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Midl>
@@ -214,7 +220,6 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\GPS (2).bmp" />
-    <Image Include="..\..\VisionSystemQin\VisionSystemQin\Bitmap\AirRefuelling.bmp" />
     <Image Include="..\..\VisionSystemQin_DynamicDetectNoMark\VisionSystemQin\GPS.bmp" />
     <Image Include="Bitmap\AirReFuelling.bmp" />
     <Image Include="Bitmap\BackDistance.bmp" />
