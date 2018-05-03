@@ -13,7 +13,7 @@
 #include <ctime>
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "LHM.hpp"
+#include "LHM.h"
 
 using namespace std;
 using namespace cv;
@@ -144,7 +144,7 @@ void initCameraParameters()
 					            {0.0, 1.0, camPara.cy},
 	                            {0.0, 0.0, 1.0 } };
 	double prob[3][3] = { { camPara.fx, camPara.s , camPara.x0},
-						  { 0.0,        camPara.fy, camPara.y0},
+						  { 0.0,        camPara.fx, camPara.y0},
 						  { 0.0,           0.0,         1.0 } };
 	Mat(3, 3, CV_64FC1, physicSize).copyTo(physicSizeMatrix);
 	Mat(3, 3, CV_64FC1, prob).copyTo(probeMat);
@@ -395,12 +395,12 @@ Mat imageProcess(Mat& img)
 	{
 	case imageProcessMethod.Center:
 		centers = centerLocate(contours);
-		mo = moments(centers);
+		mo = moments(centers); //TODO:会出现很大负数
 		centerX = mo.m10 / mo.m00;
 		centerY = mo.m01 / mo.m00;
 		break;
 	case imageProcessMethod.Ellipse:
-		centers = ellipseLocate(contours);
+		centers = centerLocate(contours);
 		ell = fitEllipse(centers);
 		centerX = ell.center.x; 
 		centerY = ell.center.y;
@@ -425,7 +425,7 @@ Mat imageProcess(Mat& img)
 		locateMaxX = max(locateMaxX, it.x);
 		locateMinY = min(locateMinY, it.y);
 		locateMaxY = max(locateMaxY, it.y);
-		cout << it.x - centerX << " " << it.y - centerY << " " << point2Angle(it,Point2f(centerX,centerY)) << endl;
+		//cout << it.x - centerX << " " << it.y - centerY << " " << point2Angle(it,Point2f(centerX,centerY)) << endl;
 	}
 	double xPixelSize = locateMaxX - locateMinX;
 	double yPixelSize = locateMaxY - locateMinY;
@@ -433,8 +433,17 @@ Mat imageProcess(Mat& img)
 	// 向三维求解
 	// 针孔模型
 	auto res = pinholeLocate(centers, centerX, centerY,xPixelSize,yPixelSize, roi);
+	auto res2 = LHM_Locate(centers, centerX, centerY, roi);
+	cout << res.t() << "\n" << res2.t() << "\n\n";
 	
-	
+	// 追踪偏移补正
+	centerX += roi.x;
+	centerY += roi.y;
+	locateMinX += roi.x;
+	locateMinY += roi.y;
+	locateMaxX += roi.x;
+	locateMaxY += roi.y;
+
 	if (imageProcessMethod.roi)
 	{
 		if (firstIn)
@@ -494,7 +503,7 @@ Mat imageProcess(Mat& img)
 	lastCenterX = centerX;
 	lastCenterY = centerY;
 
-	return res;
+	return res2;
 }
 
 vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
@@ -688,13 +697,13 @@ Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY
 	Mat cameraMat = tmpMatInv * pixelMat;
 
 	double solveX = cameraMat.at<double>(0), solveY = cameraMat.at<double>(2), solveZ = -cameraMat.at<double>(1);
-	double solveHeading = atan(-solveX / solveY), solvePitch = atan(solveZ / solveY);
+	double solveHeading = atan2(solveY, -solveX), solvePitch = atan2(solveY, solveZ);
 
 	Mat res(5, 1, CV_64FC1);
 	res.at<double>(0) = solveX;
 	res.at<double>(1) = solveY;
 	res.at<double>(2) = solveZ;
-	res.at<double>(3) = rad2deg(solveHeading);
-	res.at<double>(4) = rad2deg(solvePitch);
-	return Mat();
+	res.at<double>(3) = solveHeading;
+	res.at<double>(4) = solvePitch;
+	return res;
 }
