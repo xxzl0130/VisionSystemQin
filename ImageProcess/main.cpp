@@ -56,11 +56,11 @@ void initCameraParameters();
 void changeNoiseMethod(int state,void *);
 void imagePreProcess(MsgLink<DispMsg>* ld);
 Mat imageProcess(Mat& img);
-vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items);
+vector<vector<vector<Point2i>>> twoMeans(const vector<vector<Point2i>>& items);
 // 质心法定位
-vector<Point2f> centerLocate(const vector<vector<Point>>& contours);
+vector<Point2f> centerLocate(const vector<vector<Point2i>>& contours);
 // 椭圆法定位
-vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours);
+vector<Point2f> ellipseLocate(const vector<vector<Point2i>>& contours);
 void printMethods();
 Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY,double xPixelSize,double yPixelSize,const Rect& roi);
 
@@ -75,10 +75,12 @@ int main()
 	std::cout << fpsCtrl << endl;
 	FILE* locateData;
 	fopen_s(&locateData,"locate.csv", "r");
+	int n = 0;
 	while (true)
 	{
 		DispMsg* md = linkd.prepareMsg();
-		cap >> md->image;
+		//cap >> md->image;
+		md->image = imread("../VisionSystemQin/SaveImage/" + to_string(n++) + ".jpg");
 		fscanf_s(locateData, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &md->realX, &md->realY, &md->realZ, &md->realHeading,
 		         &md->realPitch, &md->offsetX, &md->offsetY, &md->offsetZ);
 		linkd.send();
@@ -179,7 +181,7 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	fopen_s(&resData, "res.csv", "w");
 	fprintf_s(resData,
 	          "realX,measureX,errorX,realY,measureY,errorY,realZ,measureZ,errorZ,realHeading,measureHeading,errorHeading,realPitch,measurePitch,errorPitch,timeCost\n");
-	imageProcessMethod.de = imageProcessMethod.dilateAndErode;
+	imageProcessMethod.de = imageProcessMethod.erodeAndDilate;
 	imageProcessMethod.filter = imageProcessMethod.GaussBlur;
 	imageProcessMethod.loacteMethod3D = imageProcessMethod.Pinhole;
 	imageProcessMethod.locateMethod2D = imageProcessMethod.Ellipse;
@@ -354,7 +356,7 @@ Mat imageProcess(Mat& img)
 	//imshow("binary", dst);
 
 	// 膨胀 腐蚀
-	const auto element = getStructuringElement(MORPH_ELLIPSE,Size(5,5));
+	const auto element = getStructuringElement(MORPH_RECT,Size(3,3));
 	switch(imageProcessMethod.de)
 	{
 	case imageProcessMethod.dilateAndErode:
@@ -372,7 +374,7 @@ Mat imageProcess(Mat& img)
 	//imshow("Dilation", dst);
 
 	// 寻找轮廓，数量大于12时k聚类处理
-	vector<vector<Point>> contours;
+	vector<vector<Point2i>> contours;
 	vector<Vec4i> hierarchy;
 	findContours(dst, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 	//cout << contourArea(it) << endl;
@@ -388,6 +390,7 @@ Mat imageProcess(Mat& img)
 
 	// 二维定位
 	vector<Point2f> centers;
+	//vector<Point2f> centersF;
 	double centerX, centerY;
 	RotatedRect ell;
 	Moments mo;
@@ -426,6 +429,7 @@ Mat imageProcess(Mat& img)
 		locateMinY = min(locateMinY, it.y);
 		locateMaxY = max(locateMaxY, it.y);
 		//cout << it.x - centerX << " " << it.y - centerY << " " << point2Angle(it,Point2f(centerX,centerY)) << endl;
+		cout << it << endl;
 	}
 	double xPixelSize = locateMaxX - locateMinX;
 	double yPixelSize = locateMaxY - locateMinY;
@@ -506,7 +510,7 @@ Mat imageProcess(Mat& img)
 	return res2;
 }
 
-vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
+vector<vector<vector<Point2i>>> twoMeans(const vector<vector<Point2i>>& items)
 {
 	const static uint32_t maxCnt = 1000;
 	uint32_t cnt = 0;
@@ -518,7 +522,7 @@ vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
 	vector<bool> in(n, false);
 	uniform_int_distribution<int> rand(0, n - 1);
 	default_random_engine engine;
-	vector<pair<vector<Point>, double>> data;
+	vector<pair<vector<Point2i>, double>> data;
 
 	// 预处理面积 and 初始分类
 	double minArea = (numeric_limits<double>::max)();
@@ -549,7 +553,7 @@ vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
 	while(true)
 	{
 		centerChanged = false;
-		vector<vector<vector<Point>>> tempRes(K);
+		vector<vector<vector<Point2i>>> tempRes(K);
 		vector<vector<double>> tempResArea(K);
 		for(auto& it:data)
 		{
@@ -602,10 +606,11 @@ vector<vector<vector<Point>>> twoMeans(const vector<vector<Point>>& items)
 	}
 }
 
-vector<Point2f> centerLocate(const vector<vector<Point>>& contours)
+vector<Point2f> centerLocate(const vector<vector<Point2i>>& contours)
 {
 	vector<Point2f> locate;
 	Moments mo;
+	locate.reserve(contours.size());
 	for (auto& it:contours)
 	{
 		mo = moments(it, true);
@@ -614,7 +619,7 @@ vector<Point2f> centerLocate(const vector<vector<Point>>& contours)
 	return locate;
 }
 
-vector<Point2f> ellipseLocate(const vector<vector<Point>>& contours)
+vector<Point2f> ellipseLocate(const vector<vector<Point2i>>& contours)
 {
 	vector<Point2f> locate;
 	RotatedRect re;
