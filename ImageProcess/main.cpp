@@ -51,6 +51,8 @@ struct
 	bool roi;
 } imageProcessMethod;
 
+FILE* resData;
+
 void initWindows();
 void initCameraParameters();
 void changeNoiseMethod(int state,void *);
@@ -64,23 +66,53 @@ vector<Point2f> ellipseLocate(const vector<vector<Point2i>>& contours);
 void printMethods();
 Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY,double xPixelSize,double yPixelSize,const Rect& roi);
 
-int main()
+template<typename T>
+T constrain(T a, T low, T high)
+{
+	if (a > high)
+		return high;
+	if (a < low)
+		return low;
+	return a;
+}
+
+int main(int argc,char** argv)
 {
 	initCameraParameters();
-	cv::VideoCapture cap("test.avi");
+	cv::VideoCapture cap(argv[1]);
 	MsgLink<DispMsg> linkd;
 	boost::thread th(boost::bind(imagePreProcess, &linkd));
 	th.detach();
 	int fpsCtrl = min(static_cast<unsigned int>(1000 / cap.get(CV_CAP_PROP_FPS)),125u);
 	std::cout << fpsCtrl << endl;
 	FILE* locateData;
-	fopen_s(&locateData,"locate.csv", "r");
+	fopen_s(&locateData,argv[2], "r");
+	fopen_s(&resData, argv[3], "w");
+	assert(locateData != nullptr);
+	assert(resData != nullptr);
+	assert(cap.isOpened());
 	int n = 0;
+	/*
+	vector<Point2f> points({ Point2d(358.64705882352939,419.70588235294116),
+		Point2d(407.57142857142856,409.28571428571428),
+		Point2d(313.69444444444446,408.69444444444446),
+		Point2d(442.50000000000000,371.71428571428572),
+		Point2d(276.70588235294116,372.64705882352939),
+		Point2d(455.00000000000000,325.27777777777777),
+		Point2d(266.87500000000000,327.12500000000000),
+		Point2d(440.87500000000000,227.12500000000000),
+		Point2d(276.87500000000000,277.12500000000000),
+		Point2d(407.57142857142856,245.28571428571428),
+		Point2d(312.47058823529414,244.52941176470588),
+		Point2d(359.68750000000000,231.00000000000000) });
+	;
+	LHM_Locate(points, 0, 0, Rect(0,0,0,0));*/
 	while (true)
 	{
 		DispMsg* md = linkd.prepareMsg();
-		//cap >> md->image;
-		md->image = imread("../VisionSystemQin/SaveImage/" + to_string(n++) + ".jpg");
+		if (!cap.read(md->image))
+			break;
+		//md->image = imread("../VisionSystemQin/SaveImage/" + to_string(n++) + ".jpg");
 		fscanf_s(locateData, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &md->realX, &md->realY, &md->realZ, &md->realHeading,
 		         &md->realPitch, &md->offsetX, &md->offsetY, &md->offsetZ);
 		linkd.send();
@@ -177,10 +209,9 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 	initWindows();
 	DispMsg* md;
 	Mat srcImg;
-	FILE* resData;
-	fopen_s(&resData, "res.csv", "w");
+	
 	fprintf_s(resData,
-	          "realX,measureX,errorX,realY,measureY,errorY,realZ,measureZ,errorZ,realHeading,measureHeading,errorHeading,realPitch,measurePitch,errorPitch,timeCost\n");
+	          "realX,measureX,errorX,realY,measureY,errorY,realZ,measureZ,errorZ,realHeading,measureHeading,errorHeading,realPitch,measurePitch,errorPitch,timeCost,filter,track,de,2D,3D\n");
 	imageProcessMethod.de = imageProcessMethod.erodeAndDilate;
 	imageProcessMethod.filter = imageProcessMethod.GaussBlur;
 	imageProcessMethod.loacteMethod3D = imageProcessMethod.Pinhole;
@@ -218,12 +249,14 @@ void imagePreProcess(MsgLink<DispMsg>* ld)
 			double t = getTickCount() / getTickFrequency();
 			//std::cout << (t - s) << endl;
 
-			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
+			fprintf_s(resData, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%d,%d,%d,%d,%d\n",
 				md->realX, res.at<double>(0) + md->offsetX, md->realX - res.at<double>(0) - md->offsetX,
 				md->realY, res.at<double>(1) + md->offsetY, md->realY - res.at<double>(1) - md->offsetY,
 				md->realZ, res.at<double>(2) + md->offsetZ, md->realZ - res.at<double>(2) - md->offsetZ,
 				md->realHeading, res.at<double>(3), md->realHeading - res.at<double>(3),
-				md->realPitch, res.at<double>(4), md->realPitch - res.at<double>(4),t - s);
+				md->realPitch, res.at<double>(4), md->realPitch - res.at<double>(4),t - s,
+				imageProcessMethod.filter, imageProcessMethod.roi, imageProcessMethod.de,
+				imageProcessMethod.locateMethod2D, imageProcessMethod.loacteMethod3D);
 			std::fflush(resData);
 		}
 		auto key = waitKey(1);
@@ -297,7 +330,7 @@ Mat imageProcess(Mat& img)
 {
 	static bool firstIn = true;
 	static double lastCenterX = 0, lastCenterY = 0;
-	const static double offsetSpeedFactor = 15,offsetPixelFactor = 7;
+	const static double offsetSpeedFactor = 10,offsetPixelFactor = 7;
 	static Rect roi(0,0,0,0);
 	static uint32_t frameCount = 0;
 
@@ -317,7 +350,7 @@ Mat imageProcess(Mat& img)
 		img.copyTo(dst);
 	}
 	if(imageProcessMethod.roi)
-		rectangle(img, roi, Scalar(0, 255, 0), 2, LINE_AA);
+		rectangle(img, roi, Scalar(0, 255, 0), 2);
 	//imwrite("./image/src" + to_string(frameCount) + ".jpg", img, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
 	imshow("roi", img);
 
@@ -386,11 +419,10 @@ Mat imageProcess(Mat& img)
 	
 	//dst.convertTo(tmpImg, CV_8UC3);
 	cvtColor(dst, tmpImg, CV_GRAY2BGR);
-	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2, LINE_8);
+	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2);
 
 	// 二维定位
 	vector<Point2f> centers;
-	//vector<Point2f> centersF;
 	double centerX, centerY;
 	RotatedRect ell;
 	Moments mo;
@@ -416,7 +448,7 @@ Mat imageProcess(Mat& img)
 		break;
 	}
 
-	circle(tmpImg, Point(centerX, centerY), 2, Scalar(0, 0, 255), 2, LINE_8);
+	circle(tmpImg, Point(centerX, centerY), 2, Scalar(0, 0, 255), 2);
 	imshow("contours", tmpImg);
 	//imwrite("./image/dst" + to_string(frameCount) + ".jpg", tmpImg, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
 
@@ -429,7 +461,7 @@ Mat imageProcess(Mat& img)
 		locateMinY = min(locateMinY, it.y);
 		locateMaxY = max(locateMaxY, it.y);
 		//cout << it.x - centerX << " " << it.y - centerY << " " << point2Angle(it,Point2f(centerX,centerY)) << endl;
-		cout << it << endl;
+		//cout << it << endl;
 	}
 	double xPixelSize = locateMaxX - locateMinX;
 	double yPixelSize = locateMaxY - locateMinY;
@@ -437,8 +469,8 @@ Mat imageProcess(Mat& img)
 	// 向三维求解
 	// 针孔模型
 	auto res = pinholeLocate(centers, centerX, centerY,xPixelSize,yPixelSize, roi);
-	auto res2 = LHM_Locate(centers, centerX, centerY, roi);
-	cout << res.t() << "\n" << res2.t() << "\n\n";
+	//auto res = LHM_Locate(centers, centerX, centerY, roi);
+	//cout << res.t() << "\n" << res2.t() << "\n\n";
 	
 	// 追踪偏移补正
 	centerX += roi.x;
@@ -463,8 +495,8 @@ Mat imageProcess(Mat& img)
 			// 差分求速度
 			double vX = centerX - lastCenterX;
 			double vY = centerY - lastCenterY;
-			double offsetX1 = xPixelSize / offsetPixelFactor, offsetX2 = vX * offsetSpeedFactor;
-			double offsetY1 = yPixelSize / offsetPixelFactor, offsetY2 = vY * offsetSpeedFactor;
+			double offsetX1 = xPixelSize / offsetPixelFactor, offsetX2 = constrain(vX * offsetSpeedFactor,-15.0,15.0);
+			double offsetY1 = yPixelSize / offsetPixelFactor, offsetY2 = constrain(vY * offsetSpeedFactor,-15.0,15.0);
 			roi.x = max(locateMinX - offsetX1, 0.0);
 			roi.y = max(locateMinY - offsetY1, 0.0);
 			roi.width = xPixelSize + offsetX1 * 2;
@@ -497,6 +529,17 @@ Mat imageProcess(Mat& img)
 				roi.height = img.rows - roi.x;
 			}
 		}
+		// 限制roi区域避免出框
+		roi.x = constrain(roi.x, 0, img.cols);
+		roi.y = constrain(roi.y, 0, img.rows);
+		if(roi.x + roi.width > img.cols)
+		{
+			roi.width = img.cols - roi.x;
+		}
+		if(roi.y + roi.height > img.rows)
+		{
+			roi.width = img.rows - roi.y;
+		}
 	}
 	else
 	{
@@ -507,7 +550,7 @@ Mat imageProcess(Mat& img)
 	lastCenterX = centerX;
 	lastCenterY = centerY;
 
-	return res2;
+	return res;
 }
 
 vector<vector<vector<Point2i>>> twoMeans(const vector<vector<Point2i>>& items)
