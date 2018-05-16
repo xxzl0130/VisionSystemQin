@@ -64,7 +64,7 @@ vector<Point2f> centerLocate(const vector<vector<Point2i>>& contours);
 // 椭圆法定位
 vector<Point2f> ellipseLocate(const vector<vector<Point2i>>& contours);
 void printMethods();
-Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY,double xPixelSize,double yPixelSize,const Rect& roi);
+Mat pinholeLocate(double centerX, double centerY,double xPixelSize,double yPixelSize,const Rect& roi);
 
 template<typename T>
 T constrain(T a, T low, T high)
@@ -92,27 +92,12 @@ int main(int argc,char** argv)
 	assert(resData != nullptr);
 	assert(cap.isOpened());
 	int n = 0;
-	/*
-	vector<Point2f> points({ Point2d(358.64705882352939,419.70588235294116),
-		Point2d(407.57142857142856,409.28571428571428),
-		Point2d(313.69444444444446,408.69444444444446),
-		Point2d(442.50000000000000,371.71428571428572),
-		Point2d(276.70588235294116,372.64705882352939),
-		Point2d(455.00000000000000,325.27777777777777),
-		Point2d(266.87500000000000,327.12500000000000),
-		Point2d(440.87500000000000,227.12500000000000),
-		Point2d(276.87500000000000,277.12500000000000),
-		Point2d(407.57142857142856,245.28571428571428),
-		Point2d(312.47058823529414,244.52941176470588),
-		Point2d(359.68750000000000,231.00000000000000) });
-	;
-	LHM_Locate(points, 0, 0, Rect(0,0,0,0));*/
 	while (true)
 	{
 		DispMsg* md = linkd.prepareMsg();
-		if (!cap.read(md->image))
-			break;
-		//md->image = imread("../VisionSystemQin/SaveImage/" + to_string(n++) + ".jpg");
+		/*if (!cap.read(md->image))
+			break;*/
+		md->image = imread("./SourceImage/" + to_string(n++) + ".jpg");
 		fscanf_s(locateData, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &md->realX, &md->realY, &md->realZ, &md->realHeading,
 		         &md->realPitch, &md->offsetX, &md->offsetY, &md->offsetZ);
 		linkd.send();
@@ -121,6 +106,8 @@ int main(int argc,char** argv)
 			break;
 		}
 		Sleep(fpsCtrl);
+		if (n >= 500)
+			break;
 	}
 	return 0;
 }
@@ -341,7 +328,7 @@ Mat imageProcess(Mat& img)
 	++frameCount;
 
 	// 设置roi
-	if(!firstIn)
+	if(!firstIn && imageProcessMethod.roi)
 	{
 		img(roi).copyTo(dst);
 	}
@@ -349,10 +336,10 @@ Mat imageProcess(Mat& img)
 	{
 		img.copyTo(dst);
 	}
-	if(imageProcessMethod.roi)
+	/*if(imageProcessMethod.roi)
 		rectangle(img, roi, Scalar(0, 255, 0), 2);
 	//imwrite("./image/src" + to_string(frameCount) + ".jpg", img, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
-	imshow("roi", img);
+	imshow("roi", img);*/
 
 	// 颜色分离差分
 	split(dst, channels);
@@ -419,7 +406,7 @@ Mat imageProcess(Mat& img)
 	
 	//dst.convertTo(tmpImg, CV_8UC3);
 	cvtColor(dst, tmpImg, CV_GRAY2BGR);
-	drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2);
+	//drawContours(tmpImg, contours, -1, Scalar(0, 0, 255), 2);
 
 	// 二维定位
 	vector<Point2f> centers;
@@ -437,6 +424,7 @@ Mat imageProcess(Mat& img)
 	case imageProcessMethod.Ellipse:
 		centers = centerLocate(contours);
 		ell = fitEllipse(centers);
+		//ellipse(tmpImg, ell, Scalar(0, 0, 255), 2);
 		centerX = ell.center.x; 
 		centerY = ell.center.y;
 		break;
@@ -448,7 +436,7 @@ Mat imageProcess(Mat& img)
 		break;
 	}
 
-	circle(tmpImg, Point(centerX, centerY), 2, Scalar(0, 0, 255), 2);
+	//circle(tmpImg, Point(centerX, centerY), 2, Scalar(0, 0, 255), 2);
 	imshow("contours", tmpImg);
 	//imwrite("./image/dst" + to_string(frameCount) + ".jpg", tmpImg, vector<int>({ CV_IMWRITE_JPEG_QUALITY ,100,0 }));
 
@@ -468,7 +456,8 @@ Mat imageProcess(Mat& img)
 
 	// 向三维求解
 	// 针孔模型
-	auto res = pinholeLocate(centers, centerX, centerY,xPixelSize,yPixelSize, roi);
+	auto res = pinholeLocate(centerX, centerY,xPixelSize,yPixelSize, roi);
+
 	//auto res = LHM_Locate(centers, centerX, centerY, roi);
 	//cout << res.t() << "\n" << res2.t() << "\n\n";
 	
@@ -728,7 +717,7 @@ void printMethods()
 		(imageProcessMethod.de == imageProcessMethod.dilateAndErode ? "Dilate and Erode" : "Erode and Dilate") << endl;
 }
 
-Mat pinholeLocate(const vector<Point2f>& centers, double centerX, double centerY, double xPixelSize, double yPixelSize, const Rect& roi)
+Mat pinholeLocate(double centerX, double centerY, double xPixelSize, double yPixelSize, const Rect& roi)
 {
 	// 追踪状态
 	centerX += roi.x;

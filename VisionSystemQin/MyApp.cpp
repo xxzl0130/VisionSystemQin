@@ -64,6 +64,9 @@ int CMyApp::configure() //系统配置
 	// 配置Vega Prime系统
 	vpApp::configure();
 	freopen("err.log", "w", stderr);
+	freopen("res.csv", "w", stdout);
+	fprintf_s(stdout,
+		"realX,measureX,errorX,realY,measureY,errorY,realZ,measureZ,errorZ,realHeading,measureHeading,errorHeading,realPitch,measurePitch,errorPitch,timeCost\n");
 	CalibrationpMainChannel = vpChannel::find("CalibrationChannel");//主通道	
 	assert(CalibrationpMainChannel);
 

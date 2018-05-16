@@ -107,12 +107,12 @@ cv::Mat LHM_Locate(const std::vector<cv::Point2f>& centers, double centerX, doub
 	InitRotate[2][2] = cos(pitch)*cos(yaw);
 	cv::Mat initRotateMat(3, 3, CV_64FC1, InitRotate);
 	cv::Mat translation = SolveAtitude_LHM(drogue2DImagePotionMat, drogue3DPotionMat, initRotateMat);
-	cv::Mat translation2 = cv::cvarrToMat(SolveAtitude_LHM2(drogue3DPotionMat, drogue2DImagePotionMat, initRotateMat));
+	//cv::Mat translation2 = cv::cvarrToMat(SolveAtitude_LHM2(drogue3DPotionMat, drogue2DImagePotionMat, initRotateMat));
 	
 	cv::Mat res(5, 1, CV_64FC1);
 
 	//cout << translation.t() << endl << translation2.t() << endl << endl;
-	translation = translation2;
+	//translation = translation2;
 	res.at<double>(0) = translation.at<double>(0, 0); //x
 	res.at<double>(1) = translation.at<double>(2, 0); //y
 	res.at<double>(2) = -translation.at<double>(1, 0);//z

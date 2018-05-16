@@ -194,12 +194,9 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	clock_t start = clock(); 
 	IplImage* FollowImage;
 #if SAVE_IMAGE
-	char videoname[64];
+	static char videoname[64];
 	static uint32_t cnt = 0;
-	int p[3];
-	p[0] = CV_IMWRITE_JPEG_QUALITY;
-	p[1] = 100;
-	p[2] = 0;
+	static int p[3] = { CV_IMWRITE_JPEG_QUALITY ,100,0};
 	sprintf(videoname, "./saveimage/%d.jpg", cnt++);
 	cvSaveImage(videoname, CurrentVisionImage, p);
 #endif
@@ -1382,7 +1379,13 @@ void CImageProcess::DroguePictureDetect(IplImage* CurrentVisionImage)
 	hWnd->SendMessage(WM_MY_MESSAGE,0,0);
 
 	fprintf(stderr, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n", DroguePosition[0], DroguePosition[1], DroguePosition[2], ResultAtitudeHeading, ResultAtitudePitch, CameraTranformpos[0],CameraTranformpos[1], CameraTranformpos[2]);
+	fprintf(stdout, "%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f,%.5f\n",
+		DroguePosition[0],ImageDroguePositionX,DrogueLocateAccurateX, 
+		DroguePosition[1],ImageDroguePositionY, DrogueLocateAccurateX,
+		DroguePosition[2], ImageDroguePositionY, DrogueLocateAccurateX, 
+		0.0,0.0,0.0,0.0,0.0,0.0,0.0);
 	fflush(stderr);
+	fflush(stdout);
 }
 
 
